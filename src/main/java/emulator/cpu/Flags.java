@@ -50,6 +50,6 @@ public class Flags {
         subtract = ((value & (1 << 6)) != 0);
         halfCarry = ((value & (1 << 5)) != 0);
         carry = ((value & (1 << 4)) != 0);
-        System.out.println("test");
+        System.out.println("test2");
     }
 }
