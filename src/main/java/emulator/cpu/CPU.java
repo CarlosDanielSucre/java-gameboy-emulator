@@ -8,9 +8,10 @@ public class CPU {
     private MMU mmu;
     private int pc;
 
-    public CPU() {
+    public CPU(MMU mmu) {
         this.registers = new Registers();
         this.flags = new Flags();
+        this.mmu = mmu;
     }
 
     public boolean calculateHalfCarry(int a, int b) {
