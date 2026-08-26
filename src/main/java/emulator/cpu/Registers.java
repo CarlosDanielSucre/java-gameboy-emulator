@@ -3,6 +3,7 @@ package cpu;
 public class Registers {
     private int a, b, c, d, e, h, l, f;
     private int sp, pc;
+    private Flags flags;
 
     public int getA() {
         return a;
@@ -105,5 +106,13 @@ public class Registers {
     public void setHL(int hl) {
         this.h = (hl >> 8) & 0xFF;
         this.l = hl & 0xFF;
+    }
+    public int getAF() {
+        return (a << 8) | flags.toByte();
+    }
+
+    public void setAF(int value) {
+        a = (value >> 8) & 0xFF;
+        flags.fromByte(value & 0xFF);
     }
 }
