@@ -1,5 +1,7 @@
 package test.java.emulator.cpu;
 
+import cpu.Registers;
+import memory.Cartridge;
 import memory.MMU;
 import cpu.CPU;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,25 +13,26 @@ class CPUTest {
 
     private CPU cpu;
     private MMU mmu;
+    private Cartridge cartridge;
+    private Registers registers;
 
     @BeforeEach
     void setUp() {
-        // Criamos as dependências necessárias
-        mmu = new MMU();
+        cartridge = new Cartridge(new byte[0x8000]);;
+        mmu = new MMU(cartridge);
         cpu = new CPU(mmu);
+        registers = cpu.getRegisters();
     }
 
     @Test
     void shouldFetchOpcodeAndIncrementPC() {
         // Arrange
-        cpu.setPC(0x0100);
-        mmu.writeByte(0x0100, 0x3E);
+        registers.setPc(0xC000);
+        mmu.writeByte(0xC000, 0x3E);
 
-        // Act
         int opcode = cpu.fetch();
 
-        // Assert
         assertEquals(0x3E, opcode);
-        assertEquals(0x0101, cpu.getPC());
+        assertEquals(0xC001, registers.getPc());
     }
 }

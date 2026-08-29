@@ -6,7 +6,6 @@ public class CPU {
     private Registers registers;
     private Flags flags;
     private MMU mmu;
-    private int pc;
 
     public CPU(MMU mmu) {
         this.registers = new Registers();
@@ -23,14 +22,18 @@ public class CPU {
 
         System.out.printf(
                 "PC=%04X OPCODE=%02X%n",
-                (pc - 1) & 0xFFFF,
+                (registers.getPc() - 1) & 0xFFFF,
                 opcode
         );
     }
 
-    private int fetch() {
-        int opcode = mmu.readByte(pc);
-        pc = (pc + 1) & 0xFFFF;
+    public int fetch() {
+        int opcode = mmu.readByte(registers.getPc());
+        registers.setPc((registers.getPc() + 1) & 0xFFFF);
         return opcode;
+    }
+
+    public Registers getRegisters() {
+        return this.registers;
     }
 }
