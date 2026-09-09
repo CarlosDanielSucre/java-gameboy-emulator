@@ -26,11 +26,6 @@ public class CPU {
             throw new RuntimeException(String.format("Opcode no implemented: 0x%02X", opcode));
         }
         instruction.execute();
-        System.out.printf(
-                "PC=%04X OPCODE=%02X%n",
-                (registers.getPc() - 1) & 0xFFFF,
-                opcode
-        );
     }
 
     public int fetch() {

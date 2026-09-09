@@ -7,6 +7,8 @@ import cpu.CPU;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CPUTest {
@@ -34,5 +36,24 @@ class CPUTest {
 
         assertEquals(0x3E, opcode);
         assertEquals(0xC001, registers.getPc());
+    }
+
+    @Test
+    void shouldExecuteNOP() {
+        assertDoesNotThrow(() -> {
+            registers.setPc(0xC000);
+            mmu.writeByte(0xC000, 0x00);
+
+            cpu.step();
+        });
+    }
+
+    @Test
+    void shouldThrowWhenOpcodeNotImplemented() {
+        registers.setPc(0xC000);
+        mmu.writeByte(0xC000, 0x01);
+        assertThrows(RuntimeException.class, () ->
+            cpu.step()
+        );
     }
 }
