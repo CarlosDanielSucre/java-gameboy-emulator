@@ -40,5 +40,51 @@ public class CPU {
 
     private void initOpcodeTable() {
         opcodeTable[0x00] = () -> { /* NOP */ };
+        opcodeTable[0x3E] = () -> { /* LD A, d8 */
+            int value = fetch();
+            registers.setA(value);
+        };
+        opcodeTable[0x06] = () -> { /* LD B, d8 */
+            int value = fetch();
+            registers.setB(value);
+        };
+        opcodeTable[0x0E] = () -> { /* LD C, d8 */
+            int value = fetch();
+            registers.setC(value);
+        };
+        opcodeTable[0x16] = () -> { /* LD D, d8 */
+            int value = fetch();
+            registers.setD(value);
+        };
+        opcodeTable[0x1E] = () -> { /* LD E, d8 */
+            int value = fetch();
+            registers.setE(value);
+        };
+        opcodeTable[0x26] = () -> { /* LD H, d8 */
+            int value = fetch();
+            registers.setH(value);
+        };
+        opcodeTable[0x2E] = () -> { /* LD L, d8 */
+            int value = fetch();
+            registers.setL(value);
+        };
+        opcodeTable[0x40] = () -> { /* LD B, B */
+            registers.setB(registers.getB());
+        };
+        opcodeTable[0x41] = () -> { /* LD B, C */
+            registers.setB(registers.getC());
+        };
+        opcodeTable[0x42] = () -> { /* LD B, D */
+            registers.setB(registers.getD());
+        };
+        opcodeTable[0x43] = () -> { /* LD B, E */
+            registers.setE(registers.getD());
+        };
+        opcodeTable[0x44] = () -> { /* LD B, H */
+            registers.setH(registers.getD());
+        };
+        opcodeTable[0x45] = () -> { /* LD B, L */
+            registers.setL(registers.getD());
+        };
     }
 }

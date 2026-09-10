@@ -56,4 +56,14 @@ class CPUTest {
             cpu.step()
         );
     }
+
+    @Test
+    void opcode0x3E() {
+        registers.setPc(0xC000);
+        mmu.writeByte(0xC000, 0x3E);
+        mmu.writeByte(0xC001, 0x42);
+
+        cpu.step();
+        assertEquals(0x42, registers.getA());
+    }
 }
