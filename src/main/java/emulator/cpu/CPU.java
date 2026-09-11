@@ -78,13 +78,194 @@ public class CPU {
             registers.setB(registers.getD());
         };
         opcodeTable[0x43] = () -> { /* LD B, E */
-            registers.setE(registers.getD());
+            registers.setB(registers.getE());
         };
         opcodeTable[0x44] = () -> { /* LD B, H */
-            registers.setH(registers.getD());
+            registers.setB(registers.getH());
         };
         opcodeTable[0x45] = () -> { /* LD B, L */
+            registers.setB(registers.getL());
+        };
+        opcodeTable[0x46] = () -> { /* LD B, (HL) */
+            registers.setB(mmu.readByte(registers.getHL()));
+        };
+        opcodeTable[0x47] = () -> { /* LD B, A */
+            registers.setB(registers.getA());
+        };
+
+        opcodeTable[0x48] = () -> { /* LD C, B */
+            registers.setC(registers.getB());
+        };
+        opcodeTable[0x49] = () -> { /* LD C, C */
+            registers.setC(registers.getC());
+        };
+        opcodeTable[0x4A] = () -> { /* LD C, D */
+            registers.setC(registers.getD());
+        };
+        opcodeTable[0x4B] = () -> { /* LD C, E */
+            registers.setC(registers.getE());
+        };
+        opcodeTable[0x4C] = () -> { /* LD C, H */
+            registers.setC(registers.getH());
+        };
+        opcodeTable[0x4D] = () -> { /* LD C, L */
+            registers.setC(registers.getL());
+        };
+        opcodeTable[0x4E] = () -> { /* LD C, (HL) */
+            registers.setC(mmu.readByte(registers.getHL()));
+        };
+        opcodeTable[0x4F] = () -> { /* LD C, A */
+            registers.setC(registers.getA());
+        };
+
+        opcodeTable[0x50] = () -> { /* LD D, B */
+            registers.setD(registers.getB());
+        };
+        opcodeTable[0x51] = () -> { /* LD D, C */
+            registers.setD(registers.getC());
+        };
+        opcodeTable[0x52] = () -> { /* LD D, D */
+            registers.setD(registers.getD());
+        };
+        opcodeTable[0x53] = () -> { /* LD D, E */
+            registers.setD(registers.getE());
+        };
+        opcodeTable[0x54] = () -> { /* LD D, H */
+            registers.setD(registers.getH());
+        };
+        opcodeTable[0x55] = () -> { /* LD D, L */
+            registers.setD(registers.getL());
+        };
+        opcodeTable[0x56] = () -> { /* LD D, (HL) */
+            registers.setD(mmu.readByte(registers.getHL()));
+        };
+        opcodeTable[0x57] = () -> { /* LD D, A */
+            registers.setD(registers.getA());
+        };
+
+        opcodeTable[0x58] = () -> { /* LD E, B */
+            registers.setE(registers.getB());
+        };
+        opcodeTable[0x59] = () -> { /* LD E, C */
+            registers.setE(registers.getC());
+        };
+        opcodeTable[0x5A] = () -> { /* LD E, D */
+            registers.setE(registers.getD());
+        };
+        opcodeTable[0x5B] = () -> { /* LD E, E */
+            registers.setE(registers.getE());
+        };
+        opcodeTable[0x5C] = () -> { /* LD E, H */
+            registers.setE(registers.getH());
+        };
+        opcodeTable[0x5D] = () -> { /* LD E, L */
+            registers.setE(registers.getL());
+        };
+        opcodeTable[0x5E] = () -> { /* LD E, (HL) */
+            registers.setE(mmu.readByte(registers.getHL()));
+        };
+        opcodeTable[0x5F] = () -> { /* LD E, A */
+            registers.setE(registers.getA());
+        };
+
+        opcodeTable[0x60] = () -> { /* LD H, B */
+            registers.setH(registers.getB());
+        };
+        opcodeTable[0x61] = () -> { /* LD H, C */
+            registers.setH(registers.getC());
+        };
+        opcodeTable[0x62] = () -> { /* LD H, D */
+            registers.setH(registers.getD());
+        };
+        opcodeTable[0x63] = () -> { /* LD H, E */
+            registers.setH(registers.getE());
+        };
+        opcodeTable[0x64] = () -> { /* LD H, H */
+            registers.setH(registers.getH());
+        };
+        opcodeTable[0x65] = () -> { /* LD H, L */
+            registers.setH(registers.getL());
+        };
+        opcodeTable[0x66] = () -> { /* LD H, (HL) */
+            registers.setH(mmu.readByte(registers.getHL()));
+        };
+        opcodeTable[0x67] = () -> { /* LD H, A */
+            registers.setH(registers.getA());
+        };
+
+        opcodeTable[0x68] = () -> { /* LD L, B */
+            registers.setL(registers.getB());
+        };
+        opcodeTable[0x69] = () -> { /* LD L, C */
+            registers.setL(registers.getC());
+        };
+        opcodeTable[0x6A] = () -> { /* LD L, D */
             registers.setL(registers.getD());
+        };
+        opcodeTable[0x6B] = () -> { /* LD L, E */
+            registers.setL(registers.getE());
+        };
+        opcodeTable[0x6C] = () -> { /* LD L, H */
+            registers.setL(registers.getH());
+        };
+        opcodeTable[0x6D] = () -> { /* LD L, L */
+            registers.setL(registers.getL());
+        };
+        opcodeTable[0x6E] = () -> { /* LD L, (HL) */
+            registers.setL(mmu.readByte(registers.getHL()));
+        };
+        opcodeTable[0x6F] = () -> { /* LD L, A */
+            registers.setL(registers.getA());
+        };
+
+        opcodeTable[0x70] = () -> { /* LD (HL), B */
+            mmu.writeByte(registers.getHL(), registers.getB());
+        };
+        opcodeTable[0x71] = () -> { /* LD (HL), C */
+            mmu.writeByte(registers.getHL(), registers.getC());
+        };
+        opcodeTable[0x72] = () -> { /* LD (HL), D */
+            mmu.writeByte(registers.getHL(), registers.getD());
+        };
+        opcodeTable[0x73] = () -> { /* LD (HL), E */
+            mmu.writeByte(registers.getHL(), registers.getE());
+        };
+        opcodeTable[0x74] = () -> { /* LD (HL), H */
+            mmu.writeByte(registers.getHL(), registers.getH());
+        };
+        opcodeTable[0x75] = () -> { /* LD (HL), L */
+            mmu.writeByte(registers.getHL(), registers.getL());
+        };
+        // opcodeTable[0x76] = () -> { /* HALT */
+            // NO IMPLEMENTED
+        //};
+        opcodeTable[0x77] = () -> { /* LD (HL), A */
+            mmu.writeByte(registers.getHL(), registers.getA());
+        };
+
+        opcodeTable[0x78] = () -> { /* LD A, B */
+            registers.setA(registers.getB());
+        };
+        opcodeTable[0x79] = () -> { /* LD A, C */
+            registers.setA(registers.getC());
+        };
+        opcodeTable[0x7A] = () -> { /* LD A, D */
+            registers.setA(registers.getD());
+        };
+        opcodeTable[0x7B] = () -> { /* LD A, E */
+            registers.setA(registers.getE());
+        };
+        opcodeTable[0x7C] = () -> { /* LD A, H */
+            registers.setA(registers.getH());
+        };
+        opcodeTable[0x7D] = () -> { /* LD A, L */
+            registers.setA(registers.getL());
+        };
+        opcodeTable[0x7E] = () -> { /* LD A, (HL) */
+            registers.setA(mmu.readByte(registers.getHL()));
+        };
+        opcodeTable[0x7F] = () -> { /* LD A, A */
+            registers.setA(registers.getA());
         };
     }
 }
