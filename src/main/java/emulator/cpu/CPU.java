@@ -37,6 +37,7 @@ public class CPU {
     public Registers getRegisters() {
         return this.registers;
     }
+
     public Flags getFlags() {
         return this.flags;
     }
@@ -283,6 +284,158 @@ public class CPU {
             flags.setCarry(isCarry);
             flags.setHalfCarry(halfCarry);
             flags.setSubtract(false);
+        };
+        opcodeTable[0x81] = () -> { /* ADD A, C */
+            int a = registers.getA();
+            int c = registers.getC();
+            boolean halfCarry = calculateHalfCarry(a, c);
+            int result = a + c;
+            boolean isCarry = result > 0xFF;
+            boolean isZero = (result & 0xFF) == 0;
+
+            registers.setA(result);
+            flags.setZero(isZero);
+            flags.setCarry(isCarry);
+            flags.setHalfCarry(halfCarry);
+            flags.setSubtract(false);
+        };
+        opcodeTable[0x82] = () -> { /* ADD A, D */
+            int a = registers.getA();
+            int d = registers.getD();
+            boolean halfCarry = calculateHalfCarry(a, d);
+            int result = a + d;
+            boolean isCarry = result > 0xFF;
+            boolean isZero = (result & 0xFF) == 0;
+
+            registers.setA(result);
+            flags.setZero(isZero);
+            flags.setCarry(isCarry);
+            flags.setHalfCarry(halfCarry);
+            flags.setSubtract(false);
+        };
+        opcodeTable[0x83] = () -> { /* ADD A, E */
+            int a = registers.getA();
+            int e = registers.getE();
+            boolean halfCarry = calculateHalfCarry(a, e);
+            int result = a + e;
+            boolean isCarry = result > 0xFF;
+            boolean isZero = (result & 0xFF) == 0;
+
+            registers.setA(result);
+            flags.setZero(isZero);
+            flags.setCarry(isCarry);
+            flags.setHalfCarry(halfCarry);
+            flags.setSubtract(false);
+        };
+        opcodeTable[0x84] = () -> { /* ADD A, H */
+            int a = registers.getA();
+            int h = registers.getH();
+            boolean halfCarry = calculateHalfCarry(a, h);
+            int result = a + h;
+            boolean isCarry = result > 0xFF;
+            boolean isZero = (result & 0xFF) == 0;
+
+            registers.setA(result);
+            flags.setZero(isZero);
+            flags.setCarry(isCarry);
+            flags.setHalfCarry(halfCarry);
+            flags.setSubtract(false);
+        };
+        opcodeTable[0x85] = () -> { /* ADD A, L */
+            int a = registers.getA();
+            int l = registers.getL();
+            boolean halfCarry = calculateHalfCarry(a, l);
+            int result = a + l;
+            boolean isCarry = result > 0xFF;
+            boolean isZero = (result & 0xFF) == 0;
+
+            registers.setA(result);
+            flags.setZero(isZero);
+            flags.setCarry(isCarry);
+            flags.setHalfCarry(halfCarry);
+            flags.setSubtract(false);
+        };
+        opcodeTable[0x86] = () -> { /* ADD A, (HL) */
+            int a = registers.getA();
+            int value = mmu.readByte(registers.getHL());
+            boolean halfCarry = calculateHalfCarry(a, value);
+            int result = a + value;
+            boolean isCarry = result > 0xFF;
+            boolean isZero = (result & 0xFF) == 0;
+
+            registers.setA(result);
+            flags.setZero(isZero);
+            flags.setCarry(isCarry);
+            flags.setHalfCarry(halfCarry);
+            flags.setSubtract(false);
+        };
+        opcodeTable[0x87] = () -> { /* ADD A, A */
+            int a = registers.getA();
+            boolean halfCarry = calculateHalfCarry(a, a);
+            int result = a + a;
+            boolean isCarry = result > 0xFF;
+            boolean isZero = (result & 0xFF) == 0;
+
+            registers.setA(result);
+            flags.setZero(isZero);
+            flags.setCarry(isCarry);
+            flags.setHalfCarry(halfCarry);
+            flags.setSubtract(false);
+        };
+
+        opcodeTable[0xC3] = () -> { /* JP a16 */
+            int low = fetch();
+            int high = fetch();
+            int jumpAddress = (high << 8) | low;
+
+            registers.setPc(jumpAddress);
+        };
+
+        opcodeTable[0x21] = () -> { /* LD HL,d16 */
+            int low = fetch();
+            int high = fetch();
+            int value = (high << 8) | low;
+
+            registers.setHL(value);
+        };
+
+        opcodeTable[0x11] = () -> { /* LD DE, d16*/
+            int low = fetch();
+            int high = fetch();
+            int value = (high << 8) | low;
+
+            registers.setDE(value);
+        };
+
+        opcodeTable[0x2A] = () -> { /* LD A, (HL+)*/
+            int hl = registers.getHL();
+            registers.setA(mmu.readByte(hl));
+            registers.setHL(hl + 1);
+        };
+
+        opcodeTable[0x12] = () -> { /* LD (DE), A */
+            mmu.writeByte(registers.getDE(), registers.getA());
+        };
+
+        opcodeTable[0x1C] = () -> { /* INC E */
+            int e = registers.getE();
+            int value =  e + 1;
+            boolean isHalfCarry = calculateHalfCarry(e, 1);
+            boolean isZero = (value & 0xFF) == 0;
+
+            flags.setZero(isZero);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            registers.setE(value);
+
+        };
+
+        opcodeTable[0x20] = () -> { /* JR NZ,r8 */
+            int opcodeNext = fetch();
+            byte offSet = (byte) opcodeNext;
+            if (!flags.isZero()) {
+                registers.setPc(registers.getPc() + offSet);
+            }
         };
     }
 }
