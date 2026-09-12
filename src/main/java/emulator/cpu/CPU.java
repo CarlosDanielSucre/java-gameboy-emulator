@@ -37,6 +37,9 @@ public class CPU {
     public Registers getRegisters() {
         return this.registers;
     }
+    public Flags getFlags() {
+        return this.flags;
+    }
 
     private void initOpcodeTable() {
         opcodeTable[0x00] = () -> { /* NOP */ };
@@ -266,6 +269,20 @@ public class CPU {
         };
         opcodeTable[0x7F] = () -> { /* LD A, A */
             registers.setA(registers.getA());
+        };
+        opcodeTable[0x80] = () -> { /* ADD A, B */
+            int a = registers.getA();
+            int b = registers.getB();
+            boolean halfCarry = calculateHalfCarry(a, b);
+            int result = a + b;
+            boolean isCarry = result > 0xFF;
+            boolean isZero = (result & 0xFF) == 0;
+
+            registers.setA(result);
+            flags.setZero(isZero);
+            flags.setCarry(isCarry);
+            flags.setHalfCarry(halfCarry);
+            flags.setSubtract(false);
         };
     }
 }
