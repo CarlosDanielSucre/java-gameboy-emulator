@@ -43,6 +43,9 @@ class CPUTest {
         assertEquals(0xC001, registers.getPc());
     }
 
+    //=========================================
+    //============== 0x00 - 0x0F ==============
+
     @Test
     void shouldExecuteNOP() {
         assertDoesNotThrow(() -> {
@@ -61,7 +64,102 @@ class CPUTest {
             cpu.step()
         );
     }
+    @Test
+    void opcode0x0D() {
+        registers.setPc(0xC000);
+        registers.setC(0x03);
+        flags.setCarry(false);
+        mmu.writeByte(0xC000, 0x0D);
 
+        cpu.step();
+        assertEquals(0x02, registers.getC());
+        Assertions.assertTrue(flags.isSubtract());
+        Assertions.assertFalse(flags.isHalfCarry());
+        Assertions.assertFalse(flags.isZero());
+        Assertions.assertFalse(flags.isCarry());
+    }
+
+    //=========================================
+    //============== 0x10 - 0x1F ==============
+    @Test
+    void opcode0x14() {
+        registers.setPc(0xC000);
+        registers.setE(0x00);
+        flags.setCarry(false);
+        mmu.writeByte(0xC000, 0x1C);
+
+        cpu.step();
+        assertEquals(0x01, registers.getE());
+        Assertions.assertFalse(flags.isSubtract());
+        Assertions.assertFalse(flags.isHalfCarry());
+        Assertions.assertFalse(flags.isZero());
+        Assertions.assertFalse(flags.isCarry());
+    }
+    @Test
+    void opcode0x1C() {
+        registers.setPc(0xC000);
+        registers.setE(0x00);
+        flags.setCarry(false);
+        mmu.writeByte(0xC000, 0x1C);
+
+        cpu.step();
+        assertEquals(0x01, registers.getE());
+        Assertions.assertFalse(flags.isSubtract());
+        Assertions.assertFalse(flags.isHalfCarry());
+        Assertions.assertFalse(flags.isZero());
+        Assertions.assertFalse(flags.isCarry());
+    }
+    @Test
+    void opcode0x1CHalfCarryTrue() {
+        registers.setPc(0xC000);
+        registers.setE(0xFF);
+        flags.setCarry(true);
+        mmu.writeByte(0xC000, 0x1C);
+
+        cpu.step();
+        assertEquals(0x00, registers.getE());
+        Assertions.assertFalse(flags.isSubtract());
+        Assertions.assertTrue(flags.isHalfCarry());
+        Assertions.assertTrue(flags.isZero());
+        Assertions.assertTrue(flags.isCarry());
+    }
+
+    //=========================================
+    //============== 0x20 - 0x2F ==============
+
+    @Test
+    void opcode0x20() {
+        registers.setPc(0xC000);
+        flags.setZero(false);
+        mmu.writeByte(0xC000, 0x20);
+        mmu.writeByte(0xC001, 0x03);
+
+        cpu.step();
+        assertEquals(0xC005, registers.getPc());
+    }
+    @Test
+    void opcode0x20Negative() {
+        registers.setPc(0xC013);
+        flags.setZero(false);
+        mmu.writeByte(0xC013, 0x20);
+        mmu.writeByte(0xC014, 0xFD);
+
+        cpu.step();
+        assertEquals(0xC012, registers.getPc());
+    }
+    @Test
+    void opcode0x21() {
+        registers.setPc(0xC000);
+        mmu.writeByte(0xC000, 0x21);
+        mmu.writeByte(0xC001, 0x34);
+        mmu.writeByte(0xC002, 0x12);
+
+        cpu.step();
+        assertEquals(0x1234, registers.getHL());
+    }
+
+    //=========================================
+    //============== 0x30 - 0x3F ==============
     @Test
     void opcode0x3E() {
         registers.setPc(0xC000);
@@ -72,6 +170,8 @@ class CPUTest {
         assertEquals(0x42, registers.getA());
     }
 
+    //=========================================
+    //============== 0x80 - 0x8F ==============
     @Test
     void opcode0x80WithoutOverflow() {
         registers.setA(0x01);
@@ -112,6 +212,8 @@ class CPUTest {
         Assertions.assertTrue(flags.isZero());
     }
 
+    //=========================================
+    //============== 0xC0 - 0xCF ==============
     @Test
     void opcode0xC3JP() {
         registers.setPc(0xC000);
@@ -121,64 +223,5 @@ class CPUTest {
 
         cpu.step();
         assertEquals(0x1234, registers.getPc());
-    }
-    @Test
-    void opcode0x21() {
-        registers.setPc(0xC000);
-        mmu.writeByte(0xC000, 0x21);
-        mmu.writeByte(0xC001, 0x34);
-        mmu.writeByte(0xC002, 0x12);
-
-        cpu.step();
-        assertEquals(0x1234, registers.getHL());
-    }
-
-    @Test
-    void opcode0x1C() {
-        registers.setPc(0xC000);
-        registers.setE(0x00);
-        flags.setCarry(false);
-        mmu.writeByte(0xC000, 0x1C);
-
-        cpu.step();
-        assertEquals(0x01, registers.getE());
-        Assertions.assertFalse(flags.isSubtract());
-        Assertions.assertFalse(flags.isHalfCarry());
-        Assertions.assertFalse(flags.isZero());
-        Assertions.assertFalse(flags.isCarry());
-    }
-    @Test
-    void opcode0x1CHalfCarryTrue() {
-        registers.setPc(0xC000);
-        registers.setE(0xFF);
-        flags.setCarry(true);
-        mmu.writeByte(0xC000, 0x1C);
-
-        cpu.step();
-        assertEquals(0x00, registers.getE());
-        Assertions.assertFalse(flags.isSubtract());
-        Assertions.assertTrue(flags.isHalfCarry());
-        Assertions.assertTrue(flags.isZero());
-        Assertions.assertTrue(flags.isCarry());
-    }
-    @Test
-    void opcode0x20() {
-        registers.setPc(0xC000);
-        flags.setZero(false);
-        mmu.writeByte(0xC000, 0x20);
-        mmu.writeByte(0xC001, 0x03);
-
-        cpu.step();
-        assertEquals(0xC005, registers.getPc());
-    }
-    @Test
-    void opcode0x20Negative() {
-        registers.setPc(0xC013);
-        flags.setZero(false);
-        mmu.writeByte(0xC013, 0x20);
-        mmu.writeByte(0xC014, 0xFD);
-
-        cpu.step();
-        assertEquals(0xC012, registers.getPc());
     }
 }
