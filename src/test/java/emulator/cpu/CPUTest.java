@@ -215,6 +215,20 @@ class CPUTest {
     //=========================================
     //============== 0xC0 - 0xCF ==============
     @Test
+    void opcode0xCD() {
+        registers.setPc(0xC000);
+        registers.setSp(0xFFFE);
+        mmu.writeByte(0xC000, 0xCD);
+        mmu.writeByte(0xC001, 0x34);
+        mmu.writeByte(0xC002, 0x12);
+
+        cpu.step();
+        assertEquals(0x1234, registers.getPc());
+        assertEquals(0xFFFC, registers.getSp());
+        assertEquals(0xC0, mmu.readByte(0xFFFD));
+        assertEquals(0x03, mmu.readByte(0xFFFC));
+    }
+    @Test
     void opcode0xC3JP() {
         registers.setPc(0xC000);
         mmu.writeByte(0xC000, 0xC3);

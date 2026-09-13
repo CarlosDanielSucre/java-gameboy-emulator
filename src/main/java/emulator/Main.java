@@ -15,7 +15,7 @@ public class Main {
                 cpu.step();
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
     }

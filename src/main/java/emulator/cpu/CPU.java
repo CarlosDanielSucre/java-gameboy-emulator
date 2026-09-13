@@ -496,9 +496,29 @@ public class CPU {
 
             registers.setPc(jumpAddress);
         };
+        opcodeTable[0xCD] = () -> { /* CALL a16 */
+            int low = fetch();
+            int high = fetch();
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+            int address = (high << 8) | low;
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcHigh);
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcLow);
+
+            registers.setPc(address);
+        };
 
         //=========================================
         //============== 0xE0 - 0xEF ==============
+        opcodeTable[0xE0] = () -> { /* LDH (a8),A */
+            int offset = fetch();
+            int address = 0xFF00 + offset;
+            mmu.writeByte(address, registers.getA());
+        };
 
         opcodeTable[0xEA] = () -> { /* LD (a16),A */
             int low = fetch();

@@ -7,6 +7,7 @@ public class MMU {
         this.cartridge = cartridge;
     }
     private int[] wram = new int[0x2000]; //8KB
+    private int[] hram = new int[0x7F]; //127 bytes
 
     public int readByte(int address) {
         address &= 0xFFFF;
@@ -16,8 +17,10 @@ public class MMU {
         }else if(address >= 0xC000 && address <= 0xDFFF) {
             address -= 0xC000;
             return wram[address];
+        }else if(address >= 0xFF80 && address <= 0xFFFE) {
+            address -= 0xFF80;
+            return hram[address];
         }
-
         return 0;
     }
 
@@ -29,6 +32,9 @@ public class MMU {
         }else if(address >= 0xC000 && address <= 0xDFFF) {
             address -= 0xC000;
             wram[address] = value;
+        } else if(address >= 0xFF80 && address <= 0xFFFE) {
+            address -= 0xFF80;
+            hram[address] = value;
         }
     }
 }
