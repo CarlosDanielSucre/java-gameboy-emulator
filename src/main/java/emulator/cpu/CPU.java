@@ -101,6 +101,11 @@ public class CPU {
             int value = fetch();
             registers.setD(value);
         };
+        opcodeTable[0x18] = () -> { /* JR r8 */
+            int opcodeNext = fetch();
+            byte offSet = (byte) opcodeNext;
+            registers.setPc(registers.getPc() + offSet);
+        };
         opcodeTable[0x1C] = () -> { /* INC E */
             int e = registers.getE();
             int value =  e + 1;
@@ -495,6 +500,15 @@ public class CPU {
             int jumpAddress = (high << 8) | low;
 
             registers.setPc(jumpAddress);
+        };
+        opcodeTable[0xC9] = () -> { /* RET */
+            int low = mmu.readByte(registers.getSp());
+            registers.setSp(registers.getSp() + 1);
+            int high = mmu.readByte(registers.getSp());
+            registers.setSp(registers.getSp() + 1);
+
+            int address = (high << 8) | low;
+            registers.setPc(address);
         };
         opcodeTable[0xCD] = () -> { /* CALL a16 */
             int low = fetch();

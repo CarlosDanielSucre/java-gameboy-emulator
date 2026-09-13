@@ -96,6 +96,15 @@ class CPUTest {
         Assertions.assertFalse(flags.isCarry());
     }
     @Test
+    void opcode0x18() {
+        registers.setPc(0xC000);
+        mmu.writeByte(0xC000, 0x20);
+        mmu.writeByte(0xC001, 0x03);
+
+        cpu.step();
+        assertEquals(0xC005, registers.getPc());
+    }
+    @Test
     void opcode0x1C() {
         registers.setPc(0xC000);
         registers.setE(0x00);
@@ -214,6 +223,7 @@ class CPUTest {
 
     //=========================================
     //============== 0xC0 - 0xCF ==============
+
     @Test
     void opcode0xCD() {
         registers.setPc(0xC000);
