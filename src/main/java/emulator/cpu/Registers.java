@@ -5,6 +5,10 @@ public class Registers {
     private int sp, pc;
     private Flags flags;
 
+    public Registers() {
+        this.flags = new Flags();
+    }
+
     public int getA() {
         return a;
     }

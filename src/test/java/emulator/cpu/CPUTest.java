@@ -59,7 +59,7 @@ class CPUTest {
     @Test
     void shouldThrowWhenOpcodeNotImplemented() {
         registers.setPc(0xC000);
-        mmu.writeByte(0xC000, 0x01);
+        mmu.writeByte(0xC000, 0xCB);
         assertThrows(RuntimeException.class, () ->
             cpu.step()
         );
@@ -145,6 +145,17 @@ class CPUTest {
 
         cpu.step();
         assertEquals(0xC005, registers.getPc());
+    }
+    @Test
+    void opcode0xB1() {
+        registers.setPc(0xC000);
+        registers.setA(0b01000000);
+        registers.setC(0b00000001);
+
+        mmu.writeByte(0xC000, 0xB1);
+        cpu.step();
+        assertEquals(0b01000001, registers.getA());
+        Assertions.assertFalse(flags.isZero());
     }
     @Test
     void opcode0x20Negative() {
@@ -247,5 +258,33 @@ class CPUTest {
 
         cpu.step();
         assertEquals(0x1234, registers.getPc());
+    }
+
+    //=========================================
+    //============== 0xE0 - 0xEF ==============
+
+    @Test
+    void opcode0xE1() {
+        registers.setPc(0xC000);
+        registers.setSp(0xFFFA);
+        mmu.writeByte(0xC000, 0xE1);
+        mmu.writeByte(0xFFFA, 0x34);
+        mmu.writeByte(0xFFFB, 0x12);
+
+        cpu.step();
+        assertEquals(0xFFFC, registers.getSp());
+        assertEquals(0x1234, registers.getHL());
+    }
+    @Test
+    void opcode0xE5() {
+        registers.setPc(0xC000);
+        registers.setSp(0xFFFE);
+        registers.setHL(0x1234);
+        mmu.writeByte(0xC000, 0xE5);
+
+        cpu.step();
+        assertEquals(0xFFFC, registers.getSp());
+        assertEquals(0x12, mmu.readByte(0xFFFD));
+        assertEquals(0x34, mmu.readByte(0xFFFC));
     }
 }
