@@ -287,4 +287,47 @@ class CPUTest {
         assertEquals(0x12, mmu.readByte(0xFFFD));
         assertEquals(0x34, mmu.readByte(0xFFFC));
     }
+
+    //=========================================
+    //============== 0xF0 - 0xFF ==============
+
+    @Test
+    void opcode0xFEisZero() {
+        registers.setPc(0xC000);
+        registers.setA(0x12);
+        mmu.writeByte(0xC000, 0xFE);
+        mmu.writeByte(0xC001, 0x12);
+
+        cpu.step();
+        Assertions.assertTrue(flags.isZero());
+        Assertions.assertTrue(flags.isSubtract());
+        Assertions.assertFalse(flags.isHalfCarry());
+        Assertions.assertFalse(flags.isCarry());
+    }
+    @Test
+    void opcode0xFEisHalfCarry() {
+        registers.setPc(0xC000);
+        registers.setA(0x11);
+        mmu.writeByte(0xC000, 0xFE);
+        mmu.writeByte(0xC001, 0x12);
+
+        cpu.step();
+        Assertions.assertFalse(flags.isZero());
+        Assertions.assertTrue(flags.isSubtract());
+        Assertions.assertTrue(flags.isHalfCarry());
+        Assertions.assertTrue(flags.isCarry());
+    }
+    @Test
+    void opcode0xFEisGreater() {
+        registers.setPc(0xC000);
+        registers.setA(0x15);
+        mmu.writeByte(0xC000, 0xFE);
+        mmu.writeByte(0xC001, 0x12);
+
+        cpu.step();
+        Assertions.assertFalse(flags.isZero());
+        Assertions.assertTrue(flags.isSubtract());
+        Assertions.assertFalse(flags.isHalfCarry());
+        Assertions.assertFalse(flags.isCarry());
+    }
 }
