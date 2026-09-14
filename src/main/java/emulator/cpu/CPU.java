@@ -164,6 +164,17 @@ public class CPU {
             registers.setA(mmu.readByte(hl));
             registers.setHL(hl + 1);
         };
+        opcodeTable[0x2C] = () -> { /* INC L*/
+            int l = registers.getL();
+            int value =  l + 1;
+            boolean isHalfCarry = calculateHalfCarry(l, 1);
+            boolean isZero = (value & 0xFF) == 0;
+
+            flags.setZero(isZero);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            registers.setL(value);
+        };
         opcodeTable[0x2E] = () -> { /* LD L, d8 */
             int value = fetch();
             registers.setL(value);
@@ -540,6 +551,23 @@ public class CPU {
 
             registers.setPc(jumpAddress);
         };
+        opcodeTable[0xC4] = () -> { /* CALL NZ,a16 */
+            int low = fetch();
+            int high = fetch();
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+            int address = (high << 8) | low;
+
+            if(!flags.isZero()) {
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+
+                registers.setPc(address);
+            }
+        };
         opcodeTable[0xC5] = () -> { /* PUSH BC */
             int bcLow = registers.getBC() & 0xFF;
             int bcHigh = (registers.getBC() >> 8) & 0xFF;
@@ -599,6 +627,16 @@ public class CPU {
 
             registers.setSp(registers.getSp() - 1);
             mmu.writeByte(registers.getSp(), hlLow);
+        };
+        opcodeTable[0xE6] = () -> { /* AND d8 */
+            int value = fetch();
+            int result = registers.getA() & value;
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
         };
 
         opcodeTable[0xEA] = () -> { /* LD (a16),A */
