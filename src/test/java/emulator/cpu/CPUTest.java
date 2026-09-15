@@ -146,17 +146,7 @@ class CPUTest {
         cpu.step();
         assertEquals(0xC005, registers.getPc());
     }
-    @Test
-    void opcode0xB1() {
-        registers.setPc(0xC000);
-        registers.setA(0b01000000);
-        registers.setC(0b00000001);
 
-        mmu.writeByte(0xC000, 0xB1);
-        cpu.step();
-        assertEquals(0b01000001, registers.getA());
-        Assertions.assertFalse(flags.isZero());
-    }
     @Test
     void opcode0x20Negative() {
         registers.setPc(0xC013);
@@ -180,6 +170,20 @@ class CPUTest {
 
     //=========================================
     //============== 0x30 - 0x3F ==============
+    @Test
+    void opcode0x39() {
+        registers.setPc(0xC000);
+        mmu.writeByte(0xC000, 0x39);
+        registers.setSp(0x1234);
+        registers.setHL(0x1111);
+        flags.setSubtract(true);
+
+        cpu.step();
+        assertEquals(0x2345, registers.getHL());
+        Assertions.assertFalse(flags.isHalfCarry());
+        Assertions.assertFalse(flags.isCarry());
+        Assertions.assertFalse(flags.isSubtract());
+    }
     @Test
     void opcode0x3E() {
         registers.setPc(0xC000);
@@ -230,6 +234,20 @@ class CPUTest {
         Assertions.assertTrue(flags.isCarry());
         Assertions.assertTrue(flags.isHalfCarry());
         Assertions.assertTrue(flags.isZero());
+    }
+
+    //=========================================
+    //============== 0xB0 - 0xBF ==============
+    @Test
+    void opcode0xB1() {
+        registers.setPc(0xC000);
+        registers.setA(0b01000000);
+        registers.setC(0b00000001);
+
+        mmu.writeByte(0xC000, 0xB1);
+        cpu.step();
+        assertEquals(0b01000001, registers.getA());
+        Assertions.assertFalse(flags.isZero());
     }
 
     //=========================================

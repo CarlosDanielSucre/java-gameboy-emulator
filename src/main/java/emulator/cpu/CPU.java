@@ -58,6 +58,17 @@ public class CPU {
         opcodeTable[0x03] = () -> { /* INC BC */
             registers.setBC((registers.getBC() + 1) & 0xFFFF);
         };
+        opcodeTable[0x05] = () -> { /* DEC B */
+            int b = registers.getB();
+            int value =  b - 1;
+            boolean isHalfCarry = (b & 0xF) == 0;
+            boolean isZero = (value & 0xFF) == 0;
+
+            flags.setZero(isZero);
+            flags.setSubtract(true);
+            flags.setHalfCarry(isHalfCarry);
+            registers.setB(value);
+        };
         opcodeTable[0x06] = () -> { /* LD B, d8 */
             int value = fetch();
             registers.setB(value);
@@ -91,6 +102,9 @@ public class CPU {
         opcodeTable[0x12] = () -> { /* LD (DE), A */
             mmu.writeByte(registers.getDE(), registers.getA());
         };
+        opcodeTable[0x13] = () -> { /* INC DE */
+            registers.setDE((registers.getDE() + 1) & 0xFFFF);
+        };
         opcodeTable[0x14] = () -> { /* INC D */
             int d = registers.getD();
             int value =  d + 1;
@@ -110,6 +124,10 @@ public class CPU {
             int opcodeNext = fetch();
             byte offSet = (byte) opcodeNext;
             registers.setPc(registers.getPc() + offSet);
+        };
+        opcodeTable[0x1A] = () -> { /* LD A, (DE) */
+            int de = registers.getDE();
+            registers.setA(mmu.readByte(de));
         };
         opcodeTable[0x1C] = () -> { /* INC E */
             int e = registers.getE();
@@ -145,8 +163,25 @@ public class CPU {
 
             registers.setHL(value);
         };
+        opcodeTable[0x22] = () -> { /* LD (HL+),A */
+            int a = registers.getA();
+            int hl = registers.getHL();
+            mmu.writeByte(hl, a);
+            registers.setHL(hl + 1);
+        };
         opcodeTable[0x23] = () -> { /* INC HL */
             registers.setHL((registers.getHL() + 1) & 0xFFFF);
+        };
+        opcodeTable[0x24] = () -> { /* INC H */
+            int h = registers.getH();
+            int value =  h + 1;
+            boolean isHalfCarry = calculateHalfCarry(h, 1);
+            boolean isZero = (value & 0xFF) == 0;
+
+            flags.setZero(isZero);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            registers.setH(value);
         };
         opcodeTable[0x26] = () -> { /* LD H, d8 */
             int value = fetch();
@@ -175,6 +210,17 @@ public class CPU {
             flags.setHalfCarry(isHalfCarry);
             registers.setL(value);
         };
+        opcodeTable[0x2D] = () -> { /* DEC L*/
+            int l = registers.getL();
+            int value =  l - 1;
+            boolean isHalfCarry = (l & 0xF) == 0;
+            boolean isZero = (value & 0xFF) == 0;
+
+            flags.setZero(isZero);
+            flags.setSubtract(true);
+            flags.setHalfCarry(isHalfCarry);
+            registers.setL(value);
+        };
         opcodeTable[0x2E] = () -> { /* LD L, d8 */
             int value = fetch();
             registers.setL(value);
@@ -189,6 +235,23 @@ public class CPU {
             int value = (high << 8) | low;
 
             registers.setSp(value);
+        };
+        opcodeTable[0x32] = () -> { /* LD (HL-), A */
+            int a = registers.getA();
+            int hl = registers.getHL();
+            mmu.writeByte(hl, a);
+            registers.setHL(hl - 1);
+        };
+        opcodeTable[0x39] = () -> { /* ADD HL,SP */
+            int hl = registers.getHL();
+            int sp = registers.getSp();
+            int result = hl + sp;
+            boolean isHalfCarry = ((hl & 0xFFF) + (sp & 0xFFF)) > 0xFFF;
+
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFFFF);
+            registers.setHL(result);
         };
         opcodeTable[0x3E] = () -> { /* LD A, d8 */
             int value = fetch();
@@ -520,10 +583,34 @@ public class CPU {
             flags.setSubtract(false);
         };
         //=========================================
+        //============== 0xA0 0xAF ==============
+
+        opcodeTable[0xA9] = () -> { /* XOR C */
+            int a = registers.getA();
+            int c = registers.getC();
+            int value = a ^ c;
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+        };
+
+        //=========================================
         //============== 0xB0 - 0xBF ==============
 
         opcodeTable[0xB1] = () -> { /* OR C */
             int value = registers.getA() | registers.getC();
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+        };
+        opcodeTable[0xB7] = () -> { /* OR A */
+            int value = registers.getA();
             registers.setA(value);
 
             flags.setZero(value == 0);
@@ -577,6 +664,17 @@ public class CPU {
             registers.setSp(registers.getSp() -1);
             mmu.writeByte(registers.getSp(), bcLow);
         };
+        opcodeTable[0xC6] = () -> { /* ADD A,d8 */
+            int d8 = fetch();
+            int a = registers.getA();
+            int result = a + d8;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(calculateHalfCarry(a, d8));
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
+        };
         opcodeTable[0xC9] = () -> { /* RET */
             int low = mmu.readByte(registers.getSp());
             registers.setSp(registers.getSp() + 1);
@@ -600,6 +698,29 @@ public class CPU {
             mmu.writeByte(registers.getSp(), pcLow);
 
             registers.setPc(address);
+        };
+        //=========================================
+        //============== 0xD0 - 0xDF ==============
+        opcodeTable[0xD5] = () -> { /* PUSH DE */
+            int deLow = registers.getDE() & 0xFF;
+            int deHigh = (registers.getDE() >> 8) & 0xFF;
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), deHigh);
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), deLow);
+        };
+        opcodeTable[0xD6] = () -> { /* SUB d8 */
+            int d8 = fetch();
+            int a = registers.getA();
+            int result = a - d8;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (d8 & 0xF));
+            flags.setCarry(a < d8);
+            registers.setA(result);
         };
 
         //=========================================
