@@ -7,12 +7,14 @@ public class CPU {
     private Flags flags;
     private MMU mmu;
     private Instruction[] opcodeTable = new Instruction[256];
+    private Instruction[] cbOpcodeTable = new Instruction[256];
 
     public CPU(MMU mmu) {
         this.registers = new Registers();
         this.flags = new Flags();
         this.mmu = mmu;
         initOpcodeTable();
+        initCBOpcodeTable();
     }
 
     public boolean calculateHalfCarry(int a, int b) {
@@ -596,6 +598,17 @@ public class CPU {
             flags.setHalfCarry(false);
             flags.setSubtract(false);
         };
+        opcodeTable[0xAE] = () -> { /* XOR E*/
+            int a = registers.getA();
+            int e = registers.getE();
+            int value = a ^ e;
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+        };
 
         //=========================================
         //============== 0xB0 - 0xBF ==============
@@ -683,6 +696,14 @@ public class CPU {
 
             int address = (high << 8) | low;
             registers.setPc(address);
+        };
+        opcodeTable[0xCB] = () -> { /* PREFIX CB */
+            int cbOpcode = fetch();
+            Instruction instruction = cbOpcodeTable[cbOpcode];
+            if (instruction == null) {
+                throw new RuntimeException(String.format("CB Opcode não implementado: 0x%02X", cbOpcode));
+            }
+            instruction.execute();
         };
         opcodeTable[0xCD] = () -> { /* CALL a16 */
             int low = fetch();
@@ -816,6 +837,44 @@ public class CPU {
             flags.setSubtract(true);
             flags.setHalfCarry((a & 0xF) < (d8 & 0xF));
             flags.setCarry(a < d8);
+        };
+    }
+
+    private void initCBOpcodeTable() {
+
+        //=========================================
+        //============== 0x10 - 0x1F ==============
+        cbOpcodeTable[0x19] = () -> { /* RR C */
+            cbOpcodeTable[0x19] = () -> { /* RR C */
+                int register = registers.getC();
+                boolean oldCarry = flags.isCarry();
+                int newCarryBit = register & 0x1;
+                int result = register >>> 1;
+
+                if (oldCarry) {
+                    result = result | (1 << 7);
+                }
+
+                flags.setZero(result == 0);
+                flags.setSubtract(false);
+                flags.setHalfCarry(false);
+                flags.setCarry(newCarryBit != 0);
+                registers.setC(result);
+            };
+        };
+
+        //=========================================
+        //============== 0x30 - 0x3F ==============
+        cbOpcodeTable[0x38] = () -> { /* SRL B */
+            int register = registers.getB();
+            int bitCarry = register & 0x1;
+            int result = register >>> 1;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(bitCarry != 0);
+            registers.setB(result);
         };
     }
 }
