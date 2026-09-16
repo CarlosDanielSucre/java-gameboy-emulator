@@ -844,6 +844,7 @@ public class CPU {
 
         //=========================================
         //============== 0x10 - 0x1F ==============
+
         cbOpcodeTable[0x19] = () -> { /* RR C */
             cbOpcodeTable[0x19] = () -> { /* RR C */
                 int register = registers.getC();
