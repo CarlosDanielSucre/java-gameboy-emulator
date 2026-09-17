@@ -147,6 +147,22 @@ public class CPU {
             int value = fetch();
             registers.setE(value);
         };
+        opcodeTable[0x1F] = () -> { /* RRA */
+            int value = registers.getA();
+            boolean oldCarry = flags.isCarry();
+            boolean newCarry = (value & 0x1) == 1;
+            int result = value >>> 1;
+
+            if(oldCarry) {
+                result = result | 1 << 7 ;
+            }
+
+            flags.setZero(false);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(newCarry);
+            registers.setA(result);
+        };
 
         //=========================================
         //============== 0x20 - 0x2F ==============
@@ -846,23 +862,38 @@ public class CPU {
         //============== 0x10 - 0x1F ==============
 
         cbOpcodeTable[0x19] = () -> { /* RR C */
-            cbOpcodeTable[0x19] = () -> { /* RR C */
-                int register = registers.getC();
-                boolean oldCarry = flags.isCarry();
-                int newCarryBit = register & 0x1;
-                int result = register >>> 1;
+            int register = registers.getC();
+            boolean oldCarry = flags.isCarry();
+            int newCarryBit = register & 0x1;
+            int result = register >>> 1;
 
-                if (oldCarry) {
-                    result = result | (1 << 7);
-                }
+            if (oldCarry) {
+                result = result | (1 << 7);
+            }
 
-                flags.setZero(result == 0);
-                flags.setSubtract(false);
-                flags.setHalfCarry(false);
-                flags.setCarry(newCarryBit != 0);
-                registers.setC(result);
-            };
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(newCarryBit != 0);
+            registers.setC(result);
         };
+        cbOpcodeTable[0x1A ] = () -> { /* RR D */
+            int register = registers.getD();
+            boolean oldCarry = flags.isCarry();
+            int newCarryBit = register & 0x1;
+            int result = register >>> 1;
+
+            if (oldCarry) {
+                result = result | (1 << 7);
+            }
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(newCarryBit != 0);
+            registers.setD(result);
+        };
+
 
         //=========================================
         //============== 0x30 - 0x3F ==============
