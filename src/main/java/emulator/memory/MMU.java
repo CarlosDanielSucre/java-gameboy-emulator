@@ -24,15 +24,27 @@ public class MMU {
         return 0;
     }
 
+    private int serialData = 0; // representa 0xFF01
+
     public void writeByte(int address, int value) {
         address &= 0xFFFF;
         value &= 0xFF;
+        int contador;
+
+        if (address == 0xFF01) {
+            serialData = value;
+        }
+
+        if (address == 0xFF02 && value == 0x81) {
+            System.out.print(serialData);
+        }
+
         if (address <= 0x7FFF) {
 
-        }else if(address >= 0xC000 && address <= 0xDFFF) {
+        } else if (address >= 0xC000 && address <= 0xDFFF) {
             address -= 0xC000;
             wram[address] = value;
-        } else if(address >= 0xFF80 && address <= 0xFFFE) {
+        } else if (address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             hram[address] = value;
         }

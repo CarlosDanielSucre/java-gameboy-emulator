@@ -23,7 +23,6 @@ public class CPU {
 
     public void step() {
         int opcode = fetch();
-        System.out.println(opcode);
         Instruction instruction = opcodeTable[opcode];
         if(instruction == null) {
             throw new RuntimeException(String.format("Opcode no implemented: 0x%02X", opcode));
@@ -728,6 +727,85 @@ public class CPU {
             flags.setHalfCarry(false);
             flags.setSubtract(false);
         };
+        opcodeTable[0xB8] = () -> { /* CP B */
+            int b = registers.getB();
+            int a = registers.getA();
+            int result = a - b;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (b & 0xF));
+            flags.setCarry(a < b);
+        };
+        opcodeTable[0xB9] = () -> { /* CP C */
+            int c = registers.getC();
+            int a = registers.getA();
+            int result = a - c;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (c & 0xF));
+            flags.setCarry(a < c);
+        };
+        opcodeTable[0xBA] = () -> { /* CP D */
+            int d = registers.getD();
+            int a = registers.getA();
+            int result = a - d;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (d & 0xF));
+            flags.setCarry(a < d);
+        };
+        opcodeTable[0xBB] = () -> { /* CP E */
+            int e = registers.getE();
+            int a = registers.getA();
+            int result = a - e;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (e & 0xF));
+            flags.setCarry(a < e);
+        };
+        opcodeTable[0xBC] = () -> { /* CP H */
+            int h = registers.getH();
+            int a = registers.getA();
+            int result = a - h;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (h & 0xF));
+            flags.setCarry(a < h);
+        };
+        opcodeTable[0xBD] = () -> { /* CP L */
+            int l = registers.getL();
+            int a = registers.getA();
+            int result = a - l;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (l & 0xF));
+            flags.setCarry(a < l);
+        };
+        opcodeTable[0xBE] = () -> { /* CP (HL) */
+            int hl = mmu.readByte(registers.getHL());
+            int a = registers.getA();
+            int result = a - hl;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (hl & 0xF));
+            flags.setCarry(a < hl);
+        };
+        opcodeTable[0xBF] = () -> { /* CP a */
+            int a = registers.getA();
+            int result = a - a;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (a & 0xF));
+            flags.setCarry(a < a);
+        };
 
         //=========================================
         //============== 0xC0 - 0xCF ==============
@@ -740,6 +818,15 @@ public class CPU {
 
             int value = (high << 8) | low;
             registers.setBC(value);
+        };
+        opcodeTable[0xC2] = () -> { /* JP NZ,a16 */
+            if(!flags.isZero()) {
+                int low = fetch();
+                int high = fetch();
+                int jumpAddress = (high << 8) | low;
+
+                registers.setPc(jumpAddress);
+            }
         };
         opcodeTable[0xC3] = () -> { /* JP a16 */
             int low = fetch();
