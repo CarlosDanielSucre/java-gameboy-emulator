@@ -12,6 +12,13 @@ public class MMU {
     public int readByte(int address) {
         address &= 0xFFFF;
 
+        if (address == 0xFF44) {
+            return 0x90; // LY sempre em VBlank (144)
+        }
+
+        if (address == 0xFF41) {
+            return 0x01; // STAT indicando modo VBlank
+        }
         if(address <= 0x7FFF) {
             return cartridge.readByte(address);
         }else if(address >= 0xC000 && address <= 0xDFFF) {
@@ -36,7 +43,7 @@ public class MMU {
         }
 
         if (address == 0xFF02 && value == 0x81) {
-            System.out.print(serialData);
+            System.out.print((char)serialData);
         }
 
         if (address <= 0x7FFF) {

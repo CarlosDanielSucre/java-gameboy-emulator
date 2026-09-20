@@ -5,8 +5,8 @@ public class Registers {
     private int sp, pc;
     private Flags flags;
 
-    public Registers() {
-        this.flags = new Flags();
+    public Registers(Flags flags) {
+        this.flags = flags;
     }
 
     public int getA() {
