@@ -1,5 +1,7 @@
 package memory;
 
+import ppu.PPU;
+
 public class MMU {
     private final Cartridge cartridge;
 
@@ -8,12 +10,17 @@ public class MMU {
     }
     private int[] wram = new int[0x2000]; //8KB
     private int[] hram = new int[0x7F]; //127 bytes
+    private PPU ppu = new PPU();
+
+    public void step(int cycles) {
+        ppu.step(cycles);
+    }
 
     public int readByte(int address) {
         address &= 0xFFFF;
 
         if (address == 0xFF44) {
-            return 0x90; // LY sempre em VBlank (144)
+            return ppu.getLY();
         }
 
         if (address == 0xFF41) {
