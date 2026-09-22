@@ -10,6 +10,8 @@ public class MMU {
     }
     private int[] wram = new int[0x2000]; //8KB
     private int[] hram = new int[0x7F]; //127 bytes
+    private int[] vram = new int[0x2000];
+    private int[] oam = new int[0xA0];
     private PPU ppu = new PPU();
 
     public void step(int cycles) {
@@ -20,7 +22,7 @@ public class MMU {
         address &= 0xFFFF;
 
         if (address == 0xFF44) {
-            return ppu.getLY();
+            return ppu.getMode();
         }
 
         if (address == 0xFF41) {
@@ -28,9 +30,15 @@ public class MMU {
         }
         if(address <= 0x7FFF) {
             return cartridge.readByte(address);
+        } else if (address >= 0x8000 && address <= 0x9FFF) {
+            address -= 0x8000;
+            return vram[address];
         }else if(address >= 0xC000 && address <= 0xDFFF) {
             address -= 0xC000;
             return wram[address];
+        }else if (address >= 0xFE00 && address <= 0xFE9F) {
+            address -= 0xFE00;
+            return oam[address];
         }else if(address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             return hram[address];
@@ -43,7 +51,6 @@ public class MMU {
     public void writeByte(int address, int value) {
         address &= 0xFFFF;
         value &= 0xFF;
-        int contador;
 
         if (address == 0xFF01) {
             serialData = value;
@@ -55,9 +62,15 @@ public class MMU {
 
         if (address <= 0x7FFF) {
 
+        } else if (address >= 0x8000 && address <= 0x9FFF) {
+            address -= 0x8000;
+            vram[address] = value;
         } else if (address >= 0xC000 && address <= 0xDFFF) {
             address -= 0xC000;
             wram[address] = value;
+        } else if (address >= 0xFE00 && address <= 0xFE9F) {
+            address -= 0xFE00;
+            oam[address] = value;
         } else if (address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             hram[address] = value;
