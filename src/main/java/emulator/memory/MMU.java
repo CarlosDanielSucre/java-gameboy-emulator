@@ -13,6 +13,8 @@ public class MMU {
     private int[] vram = new int[0x2000];
     private int[] oam = new int[0xA0];
     private PPU ppu = new PPU();
+    private int interruptEnable;
+    private int interruptFlag;
 
     public void step(int cycles) {
         ppu.step(cycles);
@@ -21,13 +23,6 @@ public class MMU {
     public int readByte(int address) {
         address &= 0xFFFF;
 
-        if (address == 0xFF44) {
-            return ppu.getMode();
-        }
-
-        if (address == 0xFF41) {
-            return 0x01; // STAT indicando modo VBlank
-        }
         if(address <= 0x7FFF) {
             return cartridge.readByte(address);
         } else if (address >= 0x8000 && address <= 0x9FFF) {
@@ -39,14 +34,23 @@ public class MMU {
         }else if (address >= 0xFE00 && address <= 0xFE9F) {
             address -= 0xFE00;
             return oam[address];
-        }else if(address >= 0xFF80 && address <= 0xFFFE) {
+        } else if (address == 0xFF41) {
+            return ppu.getMode();
+        } else if (address == 0xFF44) {
+            return ppu.getLy();
+        } else if(address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             return hram[address];
+        } else if (address == 0xFF0F) {
+            return interruptFlag;
+        } else if (address == 0xFFFF) {
+            return interruptEnable;
         }
+
         return 0;
     }
 
-    private int serialData = 0; // representa 0xFF01
+    private int serialData = 0;
 
     public void writeByte(int address, int value) {
         address &= 0xFFFF;
@@ -74,6 +78,11 @@ public class MMU {
         } else if (address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             hram[address] = value;
+        } else if (address == 0xFF0F) {
+            interruptFlag = value;
+        } else if (address == 0xFFFF) {
+            interruptEnable = value;
         }
+
     }
 }

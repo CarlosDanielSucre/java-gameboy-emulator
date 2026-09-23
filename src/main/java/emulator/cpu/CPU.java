@@ -8,6 +8,7 @@ public class CPU {
     private MMU mmu;
     private Instruction[] opcodeTable = new Instruction[256];
     private Instruction[] cbOpcodeTable = new Instruction[256];
+    private boolean interruptsEnabled = false;
 
     public CPU(MMU mmu) {
         this.flags = new Flags();
@@ -22,6 +23,22 @@ public class CPU {
     }
 
     public void step() {
+        int IE = mmu.readByte(0xFFFF);
+        int IF = mmu.readByte(0xFF0F);
+        int pending = IE & IF;
+        if (pending != 0) {
+            if ((pending & 0x1) != 0) {
+                // bit 0 - VBlank
+            } else if ((pending & 0x2) != 0) {
+                // bit 1 - LCD STAT
+            } else if ((pending & 0x4) != 0) {
+                // bit 2 - Timer
+            } else if ((pending & 0x8) != 0) {
+                // bit 3 - Serial
+            } else if ((pending & 0x10) != 0) {
+                // bit 4 - Joypad
+            }
+        }
         int opcode = fetch();
         Instruction instruction = opcodeTable[opcode];
         if(instruction == null) {
@@ -168,6 +185,22 @@ public class CPU {
             int value = fetch();
             registers.setC(value);
             return 8;
+        };
+        opcodeTable[0x0F] = () -> { /* RRCA */
+            int value = registers.getA();
+            boolean carry = (value & 0x1) == 1;
+            int result = value >>> 1;
+
+            if(carry) {
+                result = result | 1 << 7 ;
+            }
+
+            flags.setZero(false);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(carry);
+            registers.setA(result);
+            return 4;
         };
 
         //=========================================
@@ -505,6 +538,7 @@ public class CPU {
             byte offSet = (byte) opcodeNext;
             if (!flags.isCarry()) {
                 registers.setPc(registers.getPc() + offSet);
+                return 12;
             }
 
             return 8;
@@ -526,6 +560,13 @@ public class CPU {
 
             return 8;
         };
+        opcodeTable[0x33] = () -> { /* INC SP */
+            int sp = registers.getSp();
+            int result = sp + 1;
+            registers.setSp(result);
+
+            return 8;
+        };
         opcodeTable[0x35] = () -> { /* DEC (HL) */
             int hlValue = mmu.readByte(registers.getHL());
             int value =  hlValue - 1 & 0xFF;
@@ -538,6 +579,22 @@ public class CPU {
             mmu.writeByte(registers.getHL(), value);
 
             return 12;
+        };
+        opcodeTable[0x36] = () -> { /* LD (HL),d8 */
+            int d8 = fetch();
+            mmu.writeByte(registers.getHL(), d8);
+
+            return 12;
+        };
+        opcodeTable[0x38] = () -> { /* JR C,r8 */
+            int opcodeNext = fetch();
+            byte offSet = (byte) opcodeNext;
+            if (flags.isCarry()) {
+                registers.setPc(registers.getPc() + offSet);
+                return 12;
+            }
+
+            return 8;
         };
         opcodeTable[0x39] = () -> { /* ADD HL,SP */
             int hl = registers.getHL();
@@ -877,9 +934,10 @@ public class CPU {
 
             return 8;
         };
-        // opcodeTable[0x76] = () -> { /* HALT */
+        opcodeTable[0x76] = () -> { /* HALT */
         // NO IMPLEMENTED
-        //};
+            return 4;
+        };
         opcodeTable[0x77] = () -> { /* LD (HL), A */
             mmu.writeByte(registers.getHL(), registers.getA());
 
@@ -1174,6 +1232,16 @@ public class CPU {
             flags.setSubtract(true);
             flags.setHalfCarry((a & 0xF) < (c & 0xF));
             flags.setCarry(a < c);
+
+            return 4;
+        };
+        opcodeTable[0xBA] = () -> { /* CP D*/
+            int d = registers.getD();
+            int a = registers.getA();
+            flags.setZero(d == a);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (d & 0xF));
+            flags.setCarry(a < d);
 
             return 4;
         };
@@ -1486,9 +1554,7 @@ public class CPU {
             return 12;
         };
         opcodeTable[0xF3] = () -> { /* DI */
-            //===============
-            // NO IMPLEMENTED
-            //===============
+            interruptsEnabled = false;
 
             return 4;
         };
@@ -1517,27 +1583,6 @@ public class CPU {
 
             return 8;
         };
-        opcodeTable[0xFA] = () -> { /* LD A,(a16) */
-            int low = fetch();
-            int high = fetch();
-            int value = (high << 8) | low;
-
-            registers.setA(mmu.readByte(value));
-
-            return 16;
-        };
-        opcodeTable[0xFE] = () -> { /* CP d8 */
-            int d8 = fetch();
-            int a = registers.getA();
-            int result = a - d8;
-
-            flags.setZero((result & 0xFF) == 0);
-            flags.setSubtract(true);
-            flags.setHalfCarry((a & 0xF) < (d8 & 0xF));
-            flags.setCarry(a < d8);
-
-            return 8;
-        };
         opcodeTable[0xF8] = () -> { /* LD HL,SP+r8 */
             int sp = registers.getSp();
             int offsetUnsigned = fetch();
@@ -1560,6 +1605,31 @@ public class CPU {
         opcodeTable[0xF9] = () -> { /* LD SP,HL */
             int hl = registers.getHL();
             registers.setSp(hl);
+            return 8;
+        };
+        opcodeTable[0xFA] = () -> { /* LD A,(a16) */
+            int low = fetch();
+            int high = fetch();
+            int value = (high << 8) | low;
+
+            registers.setA(mmu.readByte(value));
+
+            return 16;
+        };
+        opcodeTable[0xFB] = () -> { /* EI */
+            interruptsEnabled = true;
+            return 4;
+        };
+        opcodeTable[0xFE] = () -> { /* CP d8 */
+            int d8 = fetch();
+            int a = registers.getA();
+            int result = a - d8;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (d8 & 0xF));
+            flags.setCarry(a < d8);
+
             return 8;
         };
         opcodeTable[0xFF] = () -> { /* RST 38H */
