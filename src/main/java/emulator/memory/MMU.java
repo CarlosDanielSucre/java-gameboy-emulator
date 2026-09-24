@@ -16,6 +16,7 @@ public class MMU {
     private int interruptEnable;
     private int interruptFlag;
 
+
     public void step(int cycles) {
         ppu.step(cycles);
     }
@@ -61,7 +62,7 @@ public class MMU {
         }
 
         if (address == 0xFF02 && value == 0x81) {
-            System.out.print((char)serialData);
+
         }
 
         if (address <= 0x7FFF) {

@@ -9,6 +9,7 @@ public class CPU {
     private Instruction[] opcodeTable = new Instruction[256];
     private Instruction[] cbOpcodeTable = new Instruction[256];
     private boolean interruptsEnabled = false;
+    private boolean halted = false;
 
     public CPU(MMU mmu) {
         this.flags = new Flags();
@@ -18,34 +19,120 @@ public class CPU {
         initCBOpcodeTable();
     }
 
+    public boolean isHalted() {
+        return halted;
+    }
+
+    public boolean isInterruptsEnabled() {
+        return interruptsEnabled;
+    }
+
     public boolean calculateHalfCarry(int a, int b) {
         return ((a & 0xF) + (b & 0xF) > 0xF);
     }
 
     public void step() {
-        int IE = mmu.readByte(0xFFFF);
-        int IF = mmu.readByte(0xFF0F);
-        int pending = IE & IF;
+        int ie = mmu.readByte(0xFFFF);
+        int iFlag = mmu.readByte(0xFF0F);
+        int pending = ie & iFlag;
         if (pending != 0) {
-            if ((pending & 0x1) != 0) {
-                // bit 0 - VBlank
-            } else if ((pending & 0x2) != 0) {
-                // bit 1 - LCD STAT
-            } else if ((pending & 0x4) != 0) {
-                // bit 2 - Timer
-            } else if ((pending & 0x8) != 0) {
-                // bit 3 - Serial
-            } else if ((pending & 0x10) != 0) {
-                // bit 4 - Joypad
+            halted = false;
+        }
+        if (pending != 0 && interruptsEnabled) {
+            if ((pending & 0x1) != 0) { // bit 0 - VBlank
+                int newFlag = iFlag & ~0x1;
+                mmu.writeByte(0xFF0F, newFlag);
+                interruptsEnabled = false;
+
+                int pcLow = registers.getPc() & 0xFF;
+                int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+
+                registers.setPc(0x0040);
+
+            } else if ((pending & 0x2) != 0) { // bit 1 - LCD STAT
+                int newFlag = iFlag & ~0x2;
+                mmu.writeByte(0xFF0F, newFlag);
+                interruptsEnabled = false;
+
+                int pcLow = registers.getPc() & 0xFF;
+                int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+
+                registers.setPc(0x0048);
+
+            } else if ((pending & 0x4) != 0) { // bit 2 - Timer
+                int newFlag = iFlag & ~0x4;
+                mmu.writeByte(0xFF0F, newFlag);
+                interruptsEnabled = false;
+
+                int pcLow = registers.getPc() & 0xFF;
+                int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+
+                registers.setPc(0x0050);
+
+            } else if ((pending & 0x8) != 0) { // bit 3 - Serial
+                int newFlag = iFlag & ~0x8;
+                mmu.writeByte(0xFF0F, newFlag);
+                interruptsEnabled = false;
+
+                int pcLow = registers.getPc() & 0xFF;
+                int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+
+                registers.setPc(0x0058);
+
+            } else if ((pending & 0x10) != 0) { // bit 4 - Joypad
+                int newFlag = iFlag & ~0x10;
+                mmu.writeByte(0xFF0F, newFlag);
+                interruptsEnabled = false;
+
+                int pcLow = registers.getPc() & 0xFF;
+                int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+
+                registers.setPc(0x0060);
+
             }
         }
-        int opcode = fetch();
-        Instruction instruction = opcodeTable[opcode];
-        if(instruction == null) {
-            throw new RuntimeException(String.format("Opcode no implemented: 0x%02X", opcode));
+        if (!halted) {
+            int opcode = fetch();
+            Instruction instruction = opcodeTable[opcode];
+            if(instruction == null) {
+                throw new RuntimeException(String.format("Opcode no implemented: 0x%02X", opcode));
+            }
+            int cycles = instruction.execute();
+            mmu.step(cycles);
+        } else {
+            mmu.step(4);
         }
-        int cycles = instruction.execute();
-        mmu.step(cycles);
+
     }
 
     public int fetch() {
@@ -935,7 +1022,7 @@ public class CPU {
             return 8;
         };
         opcodeTable[0x76] = () -> { /* HALT */
-        // NO IMPLEMENTED
+            halted = true;
             return 4;
         };
         opcodeTable[0x77] = () -> { /* LD (HL), A */
@@ -1286,6 +1373,7 @@ public class CPU {
             int pcLow = registers.getPc() & 0xFF;
             int pcHigh = (registers.getPc() >> 8) & 0xFF;
             int address = (high << 8) | low;
+            int returnAddress = registers.getPc();
 
             if(!flags.isZero()) {
                 registers.setSp(registers.getSp() - 1);
@@ -1293,10 +1381,8 @@ public class CPU {
 
                 registers.setSp(registers.getSp() - 1);
                 mmu.writeByte(registers.getSp(), pcLow);
-
                 registers.setPc(address);
             }
-
             return 12;
         };
         opcodeTable[0xC5] = () -> { /* PUSH BC */
@@ -1333,7 +1419,9 @@ public class CPU {
                 int address = (high << 8) | low;
                 registers.setPc(address);
                 return 20;
+
             }
+
 
             return 8;
         };
@@ -1364,13 +1452,13 @@ public class CPU {
             int pcLow = registers.getPc() & 0xFF;
             int pcHigh = (registers.getPc() >> 8) & 0xFF;
             int address = (high << 8) | low;
+            int returnAddress = registers.getPc();
 
             registers.setSp(registers.getSp() - 1);
             mmu.writeByte(registers.getSp(), pcHigh);
 
             registers.setSp(registers.getSp() - 1);
             mmu.writeByte(registers.getSp(), pcLow);
-
             registers.setPc(address);
 
             return 24;
@@ -1455,6 +1543,22 @@ public class CPU {
             }
 
             return 8;
+        };
+        opcodeTable[0xD9] = () -> { /* RETI */
+            int low = mmu.readByte(registers.getSp());
+            registers.setSp(registers.getSp() + 1);
+            int high = mmu.readByte(registers.getSp());
+            registers.setSp(registers.getSp() + 1);
+
+            int address = (high << 8) | low;
+            registers.setPc(address);
+            interruptsEnabled = true;
+            System.out.printf(
+                    "RETI: target=%04X SP(before)=%04X%n",
+                    address,
+                    registers.getSp()
+            );
+            return 16;
         };
 
         //=========================================
@@ -1643,6 +1747,10 @@ public class CPU {
             mmu.writeByte(registers.getSp(), pcLow);
 
             registers.setPc(0x0038);
+            System.out.println(
+                    "RST: target= SP(before)=" +
+                    registers.getSp()
+            );
             return 16;
         };
     }
