@@ -1723,6 +1723,7 @@ public class CPU {
         opcodeTable[0xFB] = () -> { /* EI */
             interruptsEnabled = true;
             return 4;
+
         };
         opcodeTable[0xFE] = () -> { /* CP d8 */
             int d8 = fetch();
