@@ -1,6 +1,7 @@
 package memory;
 
 import ppu.PPU;
+import timer.Timer;
 
 public class MMU {
     private final Cartridge cartridge;
@@ -15,10 +16,15 @@ public class MMU {
     private PPU ppu = new PPU();
     private int interruptEnable;
     private int interruptFlag;
+    private Timer timer = new Timer();
 
 
     public void step(int cycles) {
         ppu.step(cycles);
+        boolean timerOverflowed = timer.tick(cycles);
+        if (timerOverflowed) {
+            interruptFlag |= 0x4; // seta bit 2 (Timer) em IF
+        }
     }
 
     public int readByte(int address) {
@@ -42,7 +48,15 @@ public class MMU {
         } else if(address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             return hram[address];
-        } else if (address == 0xFF0F) {
+        } else if (address == 0xFF04) {
+            return timer.getDiv();
+        } else if (address == 0xFF05) {
+            return timer.getTima();
+        } else if (address == 0xFF06) {
+            return timer.getTma();
+        } else if (address == 0xFF07) {
+            return timer.getTac();
+        }else if (address == 0xFF0F) {
             return interruptFlag;
         } else if (address == 0xFFFF) {
             return interruptEnable;
@@ -62,7 +76,7 @@ public class MMU {
         }
 
         if (address == 0xFF02 && value == 0x81) {
-
+            System.out.print((char)serialData);
         }
 
         if (address <= 0x7FFF) {
@@ -76,6 +90,15 @@ public class MMU {
         } else if (address >= 0xFE00 && address <= 0xFE9F) {
             address -= 0xFE00;
             oam[address] = value;
+
+        } else if (address == 0xFF04) {
+            timer.resetDiv();
+        } else if (address == 0xFF05) {
+            timer.setTima(value);
+        } else if (address == 0xFF06) {
+            timer.setTma(value);
+        } else if (address == 0xFF07) {
+            timer.setTac(value);
         } else if (address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             hram[address] = value;

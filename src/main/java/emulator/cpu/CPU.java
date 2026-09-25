@@ -1202,6 +1202,21 @@ public class CPU {
 
             return 4;
         };
+        opcodeTable[0x89] = () -> { /* ADC A,C */
+            int c = registers.getC();
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a + c + carryIn;
+            boolean isHalfCarry = ((a & 0xF) + (c & 0xF) + carryIn) > 0xF;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
+
+            return 4;
+        };
         //=========================================
         //============== 0x90 0x9F ================
         opcodeTable[0x90] = () -> { /* SUB B */
@@ -1226,6 +1241,20 @@ public class CPU {
             flags.setSubtract(true);
             flags.setHalfCarry((a & 0xF) < (c & 0xF));
             flags.setCarry(a < c);
+            registers.setA(result);
+
+            return 4;
+        };
+
+        opcodeTable[0x95] = () -> { /* SUB L */
+            int l = registers.getL();
+            int a = registers.getA();
+            int result = a - l;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (l & 0xF));
+            flags.setCarry(a < l);
             registers.setA(result);
 
             return 4;
@@ -1530,6 +1559,19 @@ public class CPU {
 
             return 8;
         };
+        opcodeTable[0xD7] = () -> { /* RST 10H */
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcHigh);
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcLow);
+
+            registers.setPc(0x0010);
+            return 16;
+        };
         opcodeTable[0xD8] = () -> { /* RET C */
             if(flags.isCarry()) {
                 int low = mmu.readByte(registers.getSp());
@@ -1748,10 +1790,6 @@ public class CPU {
             mmu.writeByte(registers.getSp(), pcLow);
 
             registers.setPc(0x0038);
-            System.out.println(
-                    "RST: target= SP(before)=" +
-                    registers.getSp()
-            );
             return 16;
         };
     }

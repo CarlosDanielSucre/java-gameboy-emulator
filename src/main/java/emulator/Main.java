@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public class Main {
     public static void main(String[] args) {
         try {
-            Cartridge cartridge = new Cartridge(Files.readAllBytes(Path.of("roms/test/2021 Moon Escape.gb")));
+            Cartridge cartridge = new Cartridge(Files.readAllBytes(Path.of("roms/test/01-special.gb")));
             MMU mmu = new MMU(cartridge);
             CPU cpu = new CPU(mmu);
 
