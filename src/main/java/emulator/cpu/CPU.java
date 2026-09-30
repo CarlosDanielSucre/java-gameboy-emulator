@@ -120,6 +120,7 @@ public class CPU {
                 registers.setPc(0x0060);
 
             }
+
         }
         if (!halted) {
             int opcode = fetch();
@@ -392,9 +393,9 @@ public class CPU {
         };
         opcodeTable[0x1C] = () -> { /* INC E */
             int e = registers.getE();
-            int value =  e + 1;
+            int value = (e + 1) & 0xFF;
             boolean isHalfCarry = calculateHalfCarry(e, 1);
-            boolean isZero = (value & 0xFF) == 0;
+            boolean isZero = value == 0;
 
             flags.setZero(isZero);
             flags.setSubtract(false);
@@ -477,7 +478,7 @@ public class CPU {
         };
         opcodeTable[0x24] = () -> { /* INC H */
             int h = registers.getH();
-            int value =  h + 1;
+            int value =  (h + 1) & 0xFF;
             boolean isHalfCarry = calculateHalfCarry(h, 1);
             boolean isZero = (value & 0xFF) == 0;
 
