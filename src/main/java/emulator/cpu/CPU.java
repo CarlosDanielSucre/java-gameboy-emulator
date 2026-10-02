@@ -2,6 +2,10 @@ package cpu;
 
 import memory.MMU;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class CPU {
     private Registers registers;
     private Flags flags;
@@ -10,10 +14,17 @@ public class CPU {
     private Instruction[] cbOpcodeTable = new Instruction[256];
     private boolean interruptsEnabled = false;
     private boolean halted = false;
+    private long totalCycles = 0;
 
     public CPU(MMU mmu) {
         this.flags = new Flags();
         this.registers = new Registers(flags);
+        registers.setAF(0x01B0);
+        registers.setBC(0x0013);
+        registers.setDE(0x00D8);
+        registers.setHL(0x014D);
+        registers.setSp(0xFFFE);
+        registers.setPc(0x0100);
         this.mmu = mmu;
         initOpcodeTable();
         initCBOpcodeTable();
@@ -35,6 +46,7 @@ public class CPU {
         int ie = mmu.readByte(0xFFFF);
         int iFlag = mmu.readByte(0xFF0F);
         int pending = ie & iFlag;
+
         if (pending != 0) {
             halted = false;
         }
@@ -122,12 +134,45 @@ public class CPU {
             }
         }
         if (!halted) {
+            int pcBeforeFetch = registers.getPc();
             int opcode = fetch();
+
+            if (opcode == 240) {
+                int nextByte = mmu.readByte(pcBeforeFetch + 1);
+                System.out.println("Opcode em 0xC366: " + opcode + " offset: 0x" + Integer.toHexString(nextByte));
+            }
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("arquivo.txt", true))) {
+                writer.write("PC: " + registers.getPc());
+                writer.newLine();
+                writer.write("A: " + registers.getA());
+                writer.newLine();
+                writer.write("F: " + flags.toByte());
+                writer.newLine();
+                writer.write("B: " + registers.getB());
+                writer.newLine();
+                writer.write("C: " + registers.getC());
+                writer.newLine();
+                writer.write("D: " + registers.getD());
+                writer.newLine();
+                writer.write("E: " + registers.getE());
+                writer.newLine();
+                writer.write("H: " + registers.getH());
+                writer.newLine();
+                writer.write("L: " + registers.getL());
+                writer.newLine();
+                writer.write("SP: " + registers.getSp());
+                writer.newLine();
+                writer.write("Cycles: " + totalCycles);
+                writer.newLine();
+            } catch (IOException e) {
+                System.out.println("Happens an error: " + e.getMessage());
+            }
             Instruction instruction = opcodeTable[opcode];
             if(instruction == null) {
                 throw new RuntimeException(String.format("Opcode no implemented: 0x%02X", opcode));
             }
             int cycles = instruction.execute();
+            totalCycles += cycles;
             mmu.step(cycles);
         } else {
             mmu.step(4);
