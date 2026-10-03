@@ -48,15 +48,6 @@ public class Main {
                 }
             }
 
-            System.out.println("\n--- RESUMO ---");
-            System.out.println("Passos: " + steps);
-            System.out.println("PC atual: 0x" + Integer.toHexString(cpu.getRegisters().getPc()));
-            System.out.println("A: 0x" + Integer.toHexString(cpu.getRegisters().getA()));
-            System.out.println("E: 0x" + Integer.toHexString(cpu.getRegisters().getE()));
-            System.out.println("HL: 0x" + Integer.toHexString(cpu.getRegisters().getHL()));
-            System.out.println("DE: 0x" + Integer.toHexString(cpu.getRegisters().getDE()));
-            System.out.println("Flags Z: " + (cpu.getFlags().isZero() ? 1 : 0));
-
         } catch (Exception e) {
             e.printStackTrace();
         }

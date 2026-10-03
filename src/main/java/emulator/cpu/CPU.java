@@ -136,34 +136,38 @@ public class CPU {
         if (!halted) {
             int pcBeforeFetch = registers.getPc();
             int opcode = fetch();
-
-            if (opcode == 240) {
+            if (opcode == 240 && totalCycles == 250824) {
                 int nextByte = mmu.readByte(pcBeforeFetch + 1);
-                System.out.println("Opcode em 0xC366: " + opcode + " offset: 0x" + Integer.toHexString(nextByte));
+                System.out.println("LDH offset: 0x" + Integer.toHexString(nextByte));
             }
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("arquivo.txt", true))) {
-                writer.write("PC: " + registers.getPc());
-                writer.newLine();
-                writer.write("A: " + registers.getA());
-                writer.newLine();
-                writer.write("F: " + flags.toByte());
-                writer.newLine();
-                writer.write("B: " + registers.getB());
-                writer.newLine();
-                writer.write("C: " + registers.getC());
-                writer.newLine();
-                writer.write("D: " + registers.getD());
-                writer.newLine();
-                writer.write("E: " + registers.getE());
-                writer.newLine();
-                writer.write("H: " + registers.getH());
-                writer.newLine();
-                writer.write("L: " + registers.getL());
-                writer.newLine();
-                writer.write("SP: " + registers.getSp());
-                writer.newLine();
-                writer.write("Cycles: " + totalCycles);
-                writer.newLine();
+                if(totalCycles >= 199672) {
+                    writer.write("PC: " + registers.getPc());
+                    writer.newLine();
+                    writer.write("A: " + registers.getA());
+                    writer.newLine();
+                    writer.write("F: " + flags.toByte());
+                    writer.newLine();
+                    writer.write("B: " + registers.getB());
+                    writer.newLine();
+                    writer.write("C: " + registers.getC());
+                    writer.newLine();
+                    writer.write("D: " + registers.getD());
+                    writer.newLine();
+                    writer.write("E: " + registers.getE());
+                    writer.newLine();
+                    writer.write("H: " + registers.getH());
+                    writer.newLine();
+                    writer.write("L: " + registers.getL());
+                    writer.newLine();
+                    writer.write("SP: " + registers.getSp());
+                    writer.newLine();
+                    writer.write("Cycles: " + totalCycles);
+                    writer.newLine();
+                    writer.write("Opcode: " + opcode);
+                    writer.newLine();
+                }
+
             } catch (IOException e) {
                 System.out.println("Happens an error: " + e.getMessage());
             }
@@ -347,7 +351,7 @@ public class CPU {
             int value = (high << 8) | low;
 
             registers.setDE(value);
-            return 11;
+            return 12;
         };
         opcodeTable[0x12] = () -> { /* LD (DE), A */
             mmu.writeByte(registers.getDE(), registers.getA());
@@ -494,6 +498,7 @@ public class CPU {
             byte offSet = (byte) opcodeNext;
             if (!flags.isZero()) {
                 registers.setPc(registers.getPc() + offSet);
+                return 12;
             }
 
             return 8;
@@ -589,6 +594,7 @@ public class CPU {
             byte offset = (byte) opcodeNext;
             if (flags.isZero()) {
                 registers.setPc(registers.getPc() + offset);
+                return 12;
             }
 
             return 8;
@@ -1436,6 +1442,16 @@ public class CPU {
 
             return 4;
         };
+        opcodeTable[0xB8] = () -> { /* CP B */
+            int b = registers.getB();
+            int a = registers.getA();
+            flags.setZero(b == a);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (b & 0xF));
+            flags.setCarry(a < b);
+
+            return 4;
+        };
 
         opcodeTable[0xB9] = () -> { /* CP C */
             int c = registers.getC();
@@ -1457,6 +1473,16 @@ public class CPU {
 
             return 4;
         };
+        opcodeTable[0xBB] = () -> { /* CP E*/
+            int e = registers.getE();
+            int a = registers.getA();
+            flags.setZero(e == a);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (e & 0xF));
+            flags.setCarry(a < e);
+
+            return 4;
+        };
 
         //=========================================
         //============== 0xC0 - 0xCF ==============
@@ -1473,12 +1499,13 @@ public class CPU {
             return 12;
         };
         opcodeTable[0xC2] = () -> { /* JP NZ,a16 */
-            if(!flags.isZero()) {
-                int low = fetch();
-                int high = fetch();
-                int jumpAddress = (high << 8) | low;
+            int low = fetch();
+            int high = fetch();
+            int jumpAddress = (high << 8) | low;
 
+            if (!flags.isZero()) {
                 registers.setPc(jumpAddress);
+                return 16;
             }
 
             return 12;
@@ -1569,9 +1596,7 @@ public class CPU {
             if (instruction == null) {
                 throw new RuntimeException(String.format("CB Opcode não implementado: 0x%02X", cbOpcode));
             }
-            instruction.execute();
-
-            return 4;
+            return instruction.execute();
         };
         opcodeTable[0xCD] = () -> { /* CALL a16 */
             int low = fetch();
