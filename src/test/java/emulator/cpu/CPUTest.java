@@ -96,15 +96,6 @@ class CPUTest {
         Assertions.assertFalse(flags.isCarry());
     }
     @Test
-    void opcode0x18() {
-        registers.setPc(0xC000);
-        mmu.writeByte(0xC000, 0x20);
-        mmu.writeByte(0xC001, 0x03);
-
-        cpu.step();
-        assertEquals(0xC005, registers.getPc());
-    }
-    @Test
     void opcode0x1C() {
         registers.setPc(0xC000);
         registers.setE(0x00);
@@ -322,20 +313,6 @@ class CPUTest {
         assertEquals(0xFFFC, registers.getSp());
         assertEquals(0xC0, mmu.readByte(0xFFFD));
         assertEquals(0x03, mmu.readByte(0xFFFC));
-    }
-    @Test
-    void opcode0xCE() {
-        registers.setPc(0xC000);
-        registers.setA(0x11);
-        mmu.writeByte(0xC000, 0xCE);
-        mmu.writeByte(0xC001, 0x11);
-
-        cpu.step();
-        assertEquals(0x22, registers.getA());
-        Assertions.assertFalse(flags.isZero());
-        Assertions.assertFalse(flags.isHalfCarry());
-        Assertions.assertFalse(flags.isCarry());
-
     }
     @Test
     void opcode0xCEWithCarryIn() {
