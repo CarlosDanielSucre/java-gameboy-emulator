@@ -1581,8 +1581,63 @@ public class CPU {
         //=========================================
         //============== 0xB0 - 0xBF ==============
 
+        opcodeTable[0xB0] = () -> { /* OR B */
+            int value = registers.getA() | registers.getB();
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
         opcodeTable[0xB1] = () -> { /* OR C */
             int value = registers.getA() | registers.getC();
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
+        opcodeTable[0xB2] = () -> { /* OR D */
+            int value = registers.getA() | registers.getD();
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
+        opcodeTable[0xB3] = () -> { /* OR E */
+            int value = registers.getA() | registers.getE();
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
+        opcodeTable[0xB4] = () -> { /* OR H */
+            int value = registers.getA() | registers.getH();
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
+        opcodeTable[0xB5] = () -> { /* OR L */
+            int value = registers.getA() | registers.getL();
             registers.setA(value);
 
             flags.setZero(value == 0);
