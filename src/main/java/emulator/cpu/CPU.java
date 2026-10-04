@@ -1538,11 +1538,75 @@ public class CPU {
 
             return 4;
         };
+        opcodeTable[0xA8] = () -> { /* XOR B */
+            int a = registers.getA();
+            int b = registers.getB();
+            int value = a ^ b;
+            registers.setA(value);
 
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
         opcodeTable[0xA9] = () -> { /* XOR C */
             int a = registers.getA();
             int c = registers.getC();
             int value = a ^ c;
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
+        opcodeTable[0xAA] = () -> { /* XOR D */
+            int a = registers.getA();
+            int d = registers.getD();
+            int value = a ^ d;
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
+        opcodeTable[0xAB] = () -> { /* XOR E */
+            int a = registers.getA();
+            int e = registers.getE();
+            int value = a ^ e;
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
+        opcodeTable[0xAC] = () -> { /* XOR H */
+            int a = registers.getA();
+            int h = registers.getH();
+            int value = a ^ h;
+            registers.setA(value);
+
+            flags.setZero(value == 0);
+            flags.setCarry(false);
+            flags.setHalfCarry(false);
+            flags.setSubtract(false);
+
+            return 4;
+        };
+        opcodeTable[0xAD] = () -> { /* XOR L */
+            int a = registers.getA();
+            int l = registers.getL();
+            int value = a ^ l;
             registers.setA(value);
 
             flags.setZero(value == 0);
