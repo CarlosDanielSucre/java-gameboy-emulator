@@ -774,6 +774,13 @@ public class CPU {
 
             return 8;
         };
+        opcodeTable[0x3A] = () -> { /* A, (HL-)*/
+            int hl = registers.getHL();
+            registers.setA(mmu.readByte(hl));
+            registers.setHL(hl - 1);
+
+            return 8;
+        };
         opcodeTable[0x3B] = () -> { /* DEC SP */
             int sp = registers.getSp();
             int result = sp - 1;
@@ -813,7 +820,6 @@ public class CPU {
             return 8;
         };
 
-        // ... rest of file unchanged ...
 
         //=========================================
         //============== 0x40 - 0x4F ==============
@@ -2093,6 +2099,12 @@ public class CPU {
 
             return 12;
         };
+        opcodeTable[0xE2] = () -> { /* LD (C), A */
+            int address = 0xFF00 + registers.getC();
+            mmu.writeByte(address, registers.getA());
+
+            return 8;
+        };
         opcodeTable[0xE5] = () -> { /* PUSH HL */
             int hlLow = registers.getHL() & 0xFF;
             int hlHigh = (registers.getHL() >> 8) & 0xFF;
@@ -2185,6 +2197,12 @@ public class CPU {
 
             return 12;
         };
+        opcodeTable[0xF2] = () -> { /* LD A, (C) */
+            int value = mmu.readByte(0xFF00 + registers.getC());
+            registers.setA(value);
+
+            return 8;
+        };
         opcodeTable[0xF3] = () -> { /* DI */
             interruptsEnabled = false;
 
@@ -2215,7 +2233,7 @@ public class CPU {
 
             return 8;
         };
-        opcodeTable[0xF8] = () -> { /* LD HL,SP+r8 */
+            opcodeTable[0xF8] = () -> { /* LD HL,SP+r8 */
             int sp = registers.getSp();
             int offsetUnsigned = fetch();
             int offsetSigned = (byte) offsetUnsigned;
