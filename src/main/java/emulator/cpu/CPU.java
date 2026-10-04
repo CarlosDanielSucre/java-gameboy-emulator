@@ -718,6 +718,20 @@ public class CPU {
 
             return 8;
         };
+        opcodeTable[0x34] = () -> { /* INC (HL) */
+            int hl = registers.getHL();
+            int hlValue = mmu.readByte(hl);
+            int result = (hlValue + 1) & 0xFF;
+            boolean isHalfCarry = calculateHalfCarry(hlValue, 1);
+            boolean isZero = result == 0;
+
+            flags.setZero(isZero);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            mmu.writeByte(hl, result);
+
+            return 12;
+        };
         opcodeTable[0x35] = () -> { /* DEC (HL) */
             int hlValue = mmu.readByte(registers.getHL());
             int value = ((hlValue - 1) & 0xFF);
