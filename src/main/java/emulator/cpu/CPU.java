@@ -1776,6 +1776,45 @@ public class CPU {
 
             return 4;
         };
+        opcodeTable[0xBC] = () -> { /* CP H*/
+            int h = registers.getH();
+            int a = registers.getA();
+            flags.setZero(h == a);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (h & 0xF));
+            flags.setCarry(a < h);
+
+            return 4;
+        };
+        opcodeTable[0xBD] = () -> { /* CP L*/
+            int l = registers.getL();
+            int a = registers.getA();
+            flags.setZero(l == a);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (l & 0xF));
+            flags.setCarry(a < l);
+
+            return 4;
+        };
+        opcodeTable[0xBE] = () -> { /* CP (HL)*/
+            int value = mmu.readByte(registers.getHL());
+            int a = registers.getA();
+            flags.setZero(value == a);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (value & 0xF));
+            flags.setCarry(a < value);
+
+            return 8;
+        };
+        opcodeTable[0xBF] = () -> { /* CP A*/
+            int a = registers.getA();
+            flags.setZero(a == a);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < (a & 0xF));
+            flags.setCarry(a < a);
+
+            return 4;
+        };
 
         //=========================================
         //============== 0xC0 - 0xCF ==============
