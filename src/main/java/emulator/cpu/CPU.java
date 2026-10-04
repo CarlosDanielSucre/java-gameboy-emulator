@@ -1442,6 +1442,102 @@ public class CPU {
 
         //=========================================
         //============== 0xA0 0xAF ==============
+        opcodeTable[0xA0] = () -> { /* AND B */
+            int b = registers.getB();
+            int result = registers.getA() & b;
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
+
+            return 4;
+        };
+        opcodeTable[0xA1] = () -> { /* AND C */
+            int c = registers.getC();
+            int result = registers.getA() & c;
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
+
+            return 4;
+        };
+        opcodeTable[0xA2] = () -> { /* AND D */
+            int d = registers.getD();
+            int result = registers.getA() & d;
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
+
+            return 4;
+        };
+        opcodeTable[0xA3] = () -> { /* AND E */
+            int e = registers.getE();
+            int result = registers.getA() & e;
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
+
+            return 4;
+        };
+        opcodeTable[0xA4] = () -> { /* AND H */
+            int h = registers.getH();
+            int result = registers.getA() & h;
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
+
+            return 4;
+        };
+        opcodeTable[0xA5] = () -> { /* AND L */
+            int l = registers.getL();
+            int result = registers.getA() & l;
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
+
+            return 4;
+        };
+        opcodeTable[0xA6] = () -> { /* AND (HL) */
+            int hl = registers.getHL();
+            int hlValue = mmu.readByte(hl);
+            int result = registers.getA() & hlValue;
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
+
+            return 8;
+        };
+        opcodeTable[0xA7] = () -> { /* AND A */
+            int result = registers.getA() & registers.getA();
+            registers.setA(result);
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            flags.setCarry(false);
+
+            return 4;
+        };
 
         opcodeTable[0xA9] = () -> { /* XOR C */
             int a = registers.getA();
