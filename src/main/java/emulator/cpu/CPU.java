@@ -1839,6 +1839,22 @@ public class CPU {
         //=========================================
         //============== 0xC0 - 0xCF ==============
 
+        opcodeTable[0xC0] = () -> { /* RET NZ */
+            if(!flags.isZero()) {
+                int low = mmu.readByte(registers.getSp());
+                registers.setSp(registers.getSp() + 1);
+                int high = mmu.readByte(registers.getSp());
+                registers.setSp(registers.getSp() + 1);
+
+                int address = (high << 8) | low;
+                registers.setPc(address);
+                return 20;
+
+            }
+
+
+            return 8;
+        };
         opcodeTable[0xC1] = () -> { /* POP BC */
             int low = mmu.readByte(registers.getSp());
             registers.setSp(registers.getSp() + 1);
@@ -1877,16 +1893,15 @@ public class CPU {
             int pcLow = registers.getPc() & 0xFF;
             int pcHigh = (registers.getPc() >> 8) & 0xFF;
             int address = (high << 8) | low;
-            int returnAddress = registers.getPc();
 
             if(!flags.isZero()) {
                 registers.setSp(registers.getSp() - 1);
                 mmu.writeByte(registers.getSp(), pcHigh);
-                // ... continuation truncated here in tool due huge size; not ideal.
 
                 registers.setSp(registers.getSp() - 1);
                 mmu.writeByte(registers.getSp(), pcLow);
                 registers.setPc(address);
+                return 24;
             }
             return 12;
         };
@@ -1915,6 +1930,19 @@ public class CPU {
 
             return 8;
         };
+        opcodeTable[0xC7] = () -> { /* RST 00H */
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcHigh);
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcLow);
+
+            registers.setPc(0x0000);
+            return 16;
+        };
         opcodeTable[0xC8] = () -> { /* RET Z */
             if(flags.isZero()) {
                 int low = mmu.readByte(registers.getSp());
@@ -1942,6 +1970,17 @@ public class CPU {
 
             return 16;
         };
+        opcodeTable[0xCA] = () -> { /* JP Z,    a16 */
+            int low = fetch();
+            int high = fetch();
+            int jumpAddress = (high << 8) | low;
+            if (flags.isZero()) {
+                registers.setPc(jumpAddress);
+
+                return 16;
+            }
+            return 12;
+        };
         opcodeTable[0xCB] = () -> { /* PREFIX CB */
             int cbOpcode = fetch();
             Instruction instruction = cbOpcodeTable[cbOpcode];
@@ -1949,6 +1988,24 @@ public class CPU {
                 throw new RuntimeException(String.format("CB Opcode não implementado: 0x%02X", cbOpcode));
             }
             return instruction.execute();
+        };
+        opcodeTable[0xCC] = () -> { /* CALL Z,a16 */
+            int low = fetch();
+            int high = fetch();
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+            int address = (high << 8) | low;
+
+            if(flags.isZero()) {
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+                registers.setPc(address);
+                return 24;
+            }
+            return 12;
         };
         opcodeTable[0xCD] = () -> { /* CALL a16 */
             int low = fetch();
@@ -1982,6 +2039,19 @@ public class CPU {
 
             return 8;
         };
+        opcodeTable[0xCF] = () -> { /* RST 08H */
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcHigh);
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcLow);
+
+            registers.setPc(0x0008);
+            return 16;
+        };
         //=========================================
         //============== 0xD0 - 0xDF ==============
         opcodeTable[0xD0] = () -> { /* RET NC */
@@ -2007,6 +2077,36 @@ public class CPU {
 
             registers.setDE(value);
 
+            return 12;
+        };
+        opcodeTable[0xD2] = () -> { /* JP NC, a16 */
+            int low = fetch();
+            int high = fetch();
+            int jumpAddress = (high << 8) | low;
+            if (!flags.isCarry()) {
+                registers.setPc(jumpAddress);
+
+                return 16;
+            }
+            return 12;
+        };
+        opcodeTable[0xD4] = () -> { /* CALL NC, a16 */
+            int low = fetch();
+            int high = fetch();
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+            int address = (high << 8) | low;
+
+            if(!flags.isCarry()) {
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+                registers.setPc(address);
+
+                return 24;
+            }
             return 12;
         };
         opcodeTable[0xD5] = () -> { /* PUSH DE */
@@ -2070,11 +2170,50 @@ public class CPU {
             int address = (high << 8) | low;
             registers.setPc(address);
             interruptsEnabled = true;
-            System.out.printf(
-                    "RETI: target=%04X SP(before)=%04X%n",
-                    address,
-                    registers.getSp()
-            );
+
+            return 16;
+        };
+        opcodeTable[0xDA] = () -> { /* JP C, a16 */
+            int low = fetch();
+            int high = fetch();
+            int jumpAddress = (high << 8) | low;
+            if (flags.isCarry()) {
+                registers.setPc(jumpAddress);
+
+                return 16;
+            }
+            return 12;
+        };
+        opcodeTable[0xDC] = () -> { /* CALL C, a16 */
+            int low = fetch();
+            int high = fetch();
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+            int address = (high << 8) | low;
+
+            if(flags.isCarry()) {
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcHigh);
+
+                registers.setSp(registers.getSp() - 1);
+                mmu.writeByte(registers.getSp(), pcLow);
+                registers.setPc(address);
+
+                return 24;
+            }
+            return 12;
+        };
+        opcodeTable[0xDF] = () -> { /* RST 18H */
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcHigh);
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcLow);
+
+            registers.setPc(0x0018);
             return 16;
         };
 
@@ -2129,6 +2268,19 @@ public class CPU {
 
             return 8;
         };
+        opcodeTable[0xE7] = () -> { /* RST 20H */
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcHigh);
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcLow);
+
+            registers.setPc(0x0020);
+            return 16;
+        };
         opcodeTable[0xE8] = () -> { /* ADD SP, r8 */
             int opcodeNext = fetch();
             byte offSetSigned = (byte) opcodeNext;
@@ -2172,6 +2324,19 @@ public class CPU {
             flags.setSubtract(false);
 
             return 8;
+        };
+        opcodeTable[0xEF] = () -> { /* RST 28H */
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcHigh);
+
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcLow);
+
+            registers.setPc(0x0028);
+            return 16;
         };
         //=========================================
         //============== 0xF0 - 0xFF ==============
@@ -2233,24 +2398,38 @@ public class CPU {
 
             return 8;
         };
-            opcodeTable[0xF8] = () -> { /* LD HL,SP+r8 */
-            int sp = registers.getSp();
-            int offsetUnsigned = fetch();
-            int offsetSigned = (byte) offsetUnsigned;
+        opcodeTable[0xF7] = () -> { /* RST 30H */
+            int pcLow = registers.getPc() & 0xFF;
+            int pcHigh = (registers.getPc() >> 8) & 0xFF;
 
-            boolean isHalfCarry = ((sp & 0x0F) + (offsetUnsigned & 0x0F)) > 0x0F;
-            boolean isCarry = ((sp & 0xFF) + offsetUnsigned) > 0xFF;
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcHigh);
 
-            int result = (sp + offsetSigned) & 0xFFFF;
+            registers.setSp(registers.getSp() - 1);
+            mmu.writeByte(registers.getSp(), pcLow);
 
-            registers.setHL(result);
+            registers.setPc(0x0030);
+            return 16;
+        };
 
-            flags.setZero(false);
-            flags.setSubtract(false);
-            flags.setHalfCarry(isHalfCarry);
-            flags.setCarry(isCarry);
+        opcodeTable[0xF8] = () -> { /* LD HL,SP+r8 */
+        int sp = registers.getSp();
+        int offsetUnsigned = fetch();
+        int offsetSigned = (byte) offsetUnsigned;
 
-            return 12;
+        boolean isHalfCarry = ((sp & 0x0F) + (offsetUnsigned & 0x0F)) > 0x0F;
+        boolean isCarry = ((sp & 0xFF) + offsetUnsigned) > 0xFF;
+
+        int result = (sp + offsetSigned) & 0xFFFF;
+
+        registers.setHL(result);
+
+        flags.setZero(false);
+        flags.setSubtract(false);
+        flags.setHalfCarry(isHalfCarry);
+        flags.setCarry(isCarry);
+
+        return 12;
         };
         opcodeTable[0xF9] = () -> { /* LD SP,HL */
             int hl = registers.getHL();

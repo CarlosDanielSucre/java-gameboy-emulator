@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public class Main {
     public static void main(String[] args) {
         try {
-            byte[] romData = Files.readAllBytes(Path.of("roms/test/01-special.gb"));
+            byte[] romData = Files.readAllBytes(Path.of("roms/test/02-interrupts.gb"));
 
             Cartridge cartridge = new Cartridge(romData);
             MMU mmu = new MMU(cartridge);
