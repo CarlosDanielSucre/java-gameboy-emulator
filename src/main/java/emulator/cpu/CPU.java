@@ -3132,6 +3132,104 @@ public class CPU {
         };
         //=========================================
         //============== 0x30 - 0x3F ==============
+        cbOpcodeTable[0x30] = () -> { /* SWAP B */
+            int value = registers.getB();
+            int highNibble = (value >> 4) & 0xF;
+            int lowNibble = value & 0xF;
+            int result = (lowNibble << 4) | highNibble;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(false);
+            registers.setB(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x31] = () -> { /* SWAP C */
+            int value = registers.getC();
+            int highNibble = (value >> 4) & 0xF;
+            int lowNibble = value & 0xF;
+            int result = (lowNibble << 4) | highNibble;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(false);
+            registers.setC(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x32] = () -> { /* SWAP D */
+            int value = registers.getD();
+            int highNibble = (value >> 4) & 0xF;
+            int lowNibble = value & 0xF;
+            int result = (lowNibble << 4) | highNibble;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(false);
+            registers.setD(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x33] = () -> { /* SWAP E */
+            int value = registers.getE();
+            int highNibble = (value >> 4) & 0xF;
+            int lowNibble = value & 0xF;
+            int result = (lowNibble << 4) | highNibble;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(false);
+            registers.setE(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x34] = () -> { /* SWAP H */
+            int value = registers.getH();
+            int highNibble = (value >> 4) & 0xF;
+            int lowNibble = value & 0xF;
+            int result = (lowNibble << 4) | highNibble;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(false);
+            registers.setH(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x35] = () -> { /* SWAP L */
+            int value = registers.getL();
+            int highNibble = (value >> 4) & 0xF;
+            int lowNibble = value & 0xF;
+            int result = (lowNibble << 4) | highNibble;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(false);
+            registers.setL(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x36] = () -> { /* SWAP (HL) */
+            int value = mmu.readByte(registers.getHL());
+            int highNibble = (value >> 4) & 0xF;
+            int lowNibble = value & 0xF;
+            int result = (lowNibble << 4) | highNibble;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(false);
+            mmu.writeByte(registers.getHL(), result);
+
+            return 16;
+        };
         cbOpcodeTable[0x37] = () -> { /* SWAP A */
             int value = registers.getA();
             int highNibble = (value >> 4) & 0xF;
@@ -3158,6 +3256,84 @@ public class CPU {
             registers.setB(result);
 
             return 8;
+        };
+        cbOpcodeTable[0x39] = () -> { /* SRL C */
+            int register = registers.getC();
+            int bitCarry = register & 0x1;
+            int result = register >>> 1;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(bitCarry != 0);
+            registers.setC(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x3A] = () -> { /* SRL D */
+            int register = registers.getD();
+            int bitCarry = register & 0x1;
+            int result = register >>> 1;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(bitCarry != 0);
+            registers.setD(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x3B] = () -> { /* SRL E */
+            int register = registers.getE();
+            int bitCarry = register & 0x1;
+            int result = register >>> 1;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(bitCarry != 0);
+            registers.setE(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x3C] = () -> { /* SRL H */
+            int register = registers.getH();
+            int bitCarry = register & 0x1;
+            int result = register >>> 1;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(bitCarry != 0);
+            registers.setH(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x3D] = () -> { /* SRL L */
+            int register = registers.getL();
+            int bitCarry = register & 0x1;
+            int result = register >>> 1;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(bitCarry != 0);
+            registers.setL(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x3E] = () -> { /* SRL (HL) */
+            int register = mmu.readByte(registers.getHL());
+            int bitCarry = register & 0x1;
+            int result = register >>> 1;
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(bitCarry != 0);
+            mmu.writeByte(registers.getHL(), result);
+
+            return 16;
         };
         cbOpcodeTable[0x3F] = () -> { /* SRL A */
             int registerA = registers.getA();
