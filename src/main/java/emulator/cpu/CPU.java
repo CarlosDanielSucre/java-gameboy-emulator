@@ -1334,7 +1334,7 @@ public class CPU {
 
             return 8;
         };
-        cbOpcodeTable[0x1A ] = () -> { /* RR D */
+        cbOpcodeTable[0x1A] = () -> { /* RR D */
             int register = registers.getD();
             boolean oldCarry = flags.isCarry();
             int newCarryBit = register & 0x1;
@@ -1840,7 +1840,7 @@ public class CPU {
         //============== 0xC0 - 0xCF ==============
 
         opcodeTable[0xC0] = () -> { /* RET NZ */
-            if(!flags.isZero()) {
+            if (!flags.isZero()) {
                 int low = mmu.readByte(registers.getSp());
                 registers.setSp(registers.getSp() + 1);
                 int high = mmu.readByte(registers.getSp());
@@ -1894,7 +1894,7 @@ public class CPU {
             int pcHigh = (registers.getPc() >> 8) & 0xFF;
             int address = (high << 8) | low;
 
-            if(!flags.isZero()) {
+            if (!flags.isZero()) {
                 registers.setSp(registers.getSp() - 1);
                 mmu.writeByte(registers.getSp(), pcHigh);
 
@@ -1911,7 +1911,7 @@ public class CPU {
 
             registers.setSp(registers.getSp() - 1);
             mmu.writeByte(registers.getSp(), bcHigh);
-            registers.setSp(registers.getSp() -1);
+            registers.setSp(registers.getSp() - 1);
             mmu.writeByte(registers.getSp(), bcLow);
 
             return 16;
@@ -1943,7 +1943,7 @@ public class CPU {
             return 16;
         };
         opcodeTable[0xC8] = () -> { /* RET Z */
-            if(flags.isZero()) {
+            if (flags.isZero()) {
                 int low = mmu.readByte(registers.getSp());
                 registers.setSp(registers.getSp() + 1);
                 int high = mmu.readByte(registers.getSp());
@@ -1995,7 +1995,7 @@ public class CPU {
             int pcHigh = (registers.getPc() >> 8) & 0xFF;
             int address = (high << 8) | low;
 
-            if(flags.isZero()) {
+            if (flags.isZero()) {
                 registers.setSp(registers.getSp() - 1);
                 mmu.writeByte(registers.getSp(), pcHigh);
 
@@ -2054,7 +2054,7 @@ public class CPU {
         //=========================================
         //============== 0xD0 - 0xDF ==============
         opcodeTable[0xD0] = () -> { /* RET NC */
-            if(!flags.isCarry()) {
+            if (!flags.isCarry()) {
                 int low = mmu.readByte(registers.getSp());
                 registers.setSp(registers.getSp() + 1);
                 int high = mmu.readByte(registers.getSp());
@@ -2096,7 +2096,7 @@ public class CPU {
             int pcHigh = (registers.getPc() >> 8) & 0xFF;
             int address = (high << 8) | low;
 
-            if(!flags.isCarry()) {
+            if (!flags.isCarry()) {
                 registers.setSp(registers.getSp() - 1);
                 mmu.writeByte(registers.getSp(), pcHigh);
 
@@ -2147,7 +2147,7 @@ public class CPU {
             return 16;
         };
         opcodeTable[0xD8] = () -> { /* RET C */
-            if(flags.isCarry()) {
+            if (flags.isCarry()) {
                 int low = mmu.readByte(registers.getSp());
                 registers.setSp(registers.getSp() + 1);
                 int high = mmu.readByte(registers.getSp());
@@ -2190,7 +2190,7 @@ public class CPU {
             int pcHigh = (registers.getPc() >> 8) & 0xFF;
             int address = (high << 8) | low;
 
-            if(flags.isCarry()) {
+            if (flags.isCarry()) {
                 registers.setSp(registers.getSp() - 1);
                 mmu.writeByte(registers.getSp(), pcHigh);
 
@@ -2412,23 +2412,23 @@ public class CPU {
         };
 
         opcodeTable[0xF8] = () -> { /* LD HL,SP+r8 */
-        int sp = registers.getSp();
-        int offsetUnsigned = fetch();
-        int offsetSigned = (byte) offsetUnsigned;
+            int sp = registers.getSp();
+            int offsetUnsigned = fetch();
+            int offsetSigned = (byte) offsetUnsigned;
 
-        boolean isHalfCarry = ((sp & 0x0F) + (offsetUnsigned & 0x0F)) > 0x0F;
-        boolean isCarry = ((sp & 0xFF) + offsetUnsigned) > 0xFF;
+            boolean isHalfCarry = ((sp & 0x0F) + (offsetUnsigned & 0x0F)) > 0x0F;
+            boolean isCarry = ((sp & 0xFF) + offsetUnsigned) > 0xFF;
 
-        int result = (sp + offsetSigned) & 0xFFFF;
+            int result = (sp + offsetSigned) & 0xFFFF;
 
-        registers.setHL(result);
+            registers.setHL(result);
 
-        flags.setZero(false);
-        flags.setSubtract(false);
-        flags.setHalfCarry(isHalfCarry);
-        flags.setCarry(isCarry);
+            flags.setZero(false);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(isCarry);
 
-        return 12;
+            return 12;
         };
         opcodeTable[0xF9] = () -> { /* LD SP,HL */
             int hl = registers.getHL();
@@ -2583,7 +2583,7 @@ public class CPU {
         cbOpcodeTable[0x08] = () -> { /* RRC B */
             int value = registers.getB();
             int bit1 = value & 0x1;
-            int result = ((bit1 << 7)| (value >> 1)) & 0xFF;
+            int result = ((bit1 << 7) | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
             flags.setSubtract(false);
@@ -2596,7 +2596,7 @@ public class CPU {
         cbOpcodeTable[0x09] = () -> { /* RRC C */
             int value = registers.getC();
             int bit1 = value & 0x1;
-            int result = ((bit1 << 7)| (value >> 1)) & 0xFF;
+            int result = ((bit1 << 7) | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
             flags.setSubtract(false);
@@ -2609,7 +2609,7 @@ public class CPU {
         cbOpcodeTable[0x0A] = () -> { /* RRC D */
             int value = registers.getD();
             int bit1 = value & 0x1;
-            int result = ((bit1 << 7)| (value >> 1)) & 0xFF;
+            int result = ((bit1 << 7) | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
             flags.setSubtract(false);
@@ -2622,7 +2622,7 @@ public class CPU {
         cbOpcodeTable[0x0B] = () -> { /* RRC E */
             int value = registers.getE();
             int bit1 = value & 0x1;
-            int result = ((bit1 << 7)| (value >> 1)) & 0xFF;
+            int result = ((bit1 << 7) | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
             flags.setSubtract(false);
@@ -2635,7 +2635,7 @@ public class CPU {
         cbOpcodeTable[0x0C] = () -> { /* RRC H */
             int value = registers.getH();
             int bit1 = value & 0x1;
-            int result = ((bit1 << 7)| (value >> 1)) & 0xFF;
+            int result = ((bit1 << 7) | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
             flags.setSubtract(false);
@@ -2648,7 +2648,7 @@ public class CPU {
         cbOpcodeTable[0x0D] = () -> { /* RRC L */
             int value = registers.getL();
             int bit1 = value & 0x1;
-            int result = ((bit1 << 7)| (value >> 1)) & 0xFF;
+            int result = ((bit1 << 7) | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
             flags.setSubtract(false);
@@ -2661,7 +2661,7 @@ public class CPU {
         cbOpcodeTable[0x0E] = () -> { /* RRC (HL) */
             int value = mmu.readByte(registers.getHL());
             int bit1 = value & 0x1;
-            int result = ((bit1 << 7)| (value >> 1)) & 0xFF;
+            int result = ((bit1 << 7) | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
             flags.setSubtract(false);
@@ -2674,7 +2674,7 @@ public class CPU {
         cbOpcodeTable[0x0F] = () -> { /* RRC A */
             int value = registers.getA();
             int bit1 = value & 0x1;
-            int result = ((bit1 << 7)| (value >> 1)) & 0xFF;
+            int result = ((bit1 << 7) | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
             flags.setSubtract(false);
@@ -2690,7 +2690,7 @@ public class CPU {
         cbOpcodeTable[0x10] = () -> { /* RL B */
             int value = registers.getB();
             int bit7 = (value >> 7) & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = ((value << 1) | carry) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2704,7 +2704,7 @@ public class CPU {
         cbOpcodeTable[0x11] = () -> { /* RL C */
             int value = registers.getC();
             int bit7 = (value >> 7) & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = ((value << 1) | carry) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2718,7 +2718,7 @@ public class CPU {
         cbOpcodeTable[0x12] = () -> { /* RL D */
             int value = registers.getD();
             int bit7 = (value >> 7) & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = ((value << 1) | carry) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2732,7 +2732,7 @@ public class CPU {
         cbOpcodeTable[0x13] = () -> { /* RL E */
             int value = registers.getE();
             int bit7 = (value >> 7) & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = ((value << 1) | carry) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2746,7 +2746,7 @@ public class CPU {
         cbOpcodeTable[0x14] = () -> { /* RL H */
             int value = registers.getH();
             int bit7 = (value >> 7) & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = ((value << 1) | carry) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2760,7 +2760,7 @@ public class CPU {
         cbOpcodeTable[0x15] = () -> { /* RL L */
             int value = registers.getL();
             int bit7 = (value >> 7) & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = ((value << 1) | carry) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2774,7 +2774,7 @@ public class CPU {
         cbOpcodeTable[0x16] = () -> { /* RL (HL) */
             int value = mmu.readByte(registers.getHL());
             int bit7 = (value >> 7) & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = ((value << 1) | carry) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2788,7 +2788,7 @@ public class CPU {
         cbOpcodeTable[0x17] = () -> { /* RL A */
             int value = registers.getA();
             int bit7 = (value >> 7) & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = ((value << 1) | carry) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2802,7 +2802,7 @@ public class CPU {
         cbOpcodeTable[0x18] = () -> { /* RR B */
             int value = registers.getB();
             int bit0 = value & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = (carry << 7 | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2816,7 +2816,7 @@ public class CPU {
         cbOpcodeTable[0x19] = () -> { /* RR C */
             int value = registers.getC();
             int bit0 = value & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = (carry << 7 | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2830,7 +2830,7 @@ public class CPU {
         cbOpcodeTable[0x1A] = () -> { /* RR D */
             int value = registers.getD();
             int bit0 = value & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = (carry << 7 | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2844,7 +2844,7 @@ public class CPU {
         cbOpcodeTable[0x1B] = () -> { /* RR E */
             int value = registers.getE();
             int bit0 = value & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = (carry << 7 | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2858,7 +2858,7 @@ public class CPU {
         cbOpcodeTable[0x1C] = () -> { /* RR H */
             int value = registers.getH();
             int bit0 = value & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = (carry << 7 | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2872,7 +2872,7 @@ public class CPU {
         cbOpcodeTable[0x1D] = () -> { /* RR L */
             int value = registers.getL();
             int bit0 = value & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = (carry << 7 | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2886,7 +2886,7 @@ public class CPU {
         cbOpcodeTable[0x1E] = () -> { /* RR (HL) */
             int value = mmu.readByte(registers.getHL());
             int bit0 = value & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = (carry << 7 | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
@@ -2900,7 +2900,7 @@ public class CPU {
         cbOpcodeTable[0x1F] = () -> { /* RR A */
             int value = registers.getA();
             int bit0 = value & 0x1;
-            int carry = flags.isCarry()? 1 : 0;
+            int carry = flags.isCarry() ? 1 : 0;
             int result = (carry << 7 | (value >> 1)) & 0xFF;
 
             flags.setZero(result == 0);
@@ -3352,83 +3352,679 @@ public class CPU {
         //============== BIT 0x40 - 0x7F ==============
 
         // Bit 0
-        cbOpcodeTable[0x40] = () -> { flags.setZero(((registers.getB() >> 0) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x41] = () -> { flags.setZero(((registers.getC() >> 0) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x42] = () -> { flags.setZero(((registers.getD() >> 0) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x43] = () -> { flags.setZero(((registers.getE() >> 0) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x44] = () -> { flags.setZero(((registers.getH() >> 0) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x45] = () -> { flags.setZero(((registers.getL() >> 0) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x46] = () -> { flags.setZero(((mmu.readByte(registers.getHL()) >> 0) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 16; };
-        cbOpcodeTable[0x47] = () -> { flags.setZero(((registers.getA() >> 0) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
+        cbOpcodeTable[0x40] = () -> {
+            flags.setZero(((registers.getB() >> 0) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x41] = () -> {
+            flags.setZero(((registers.getC() >> 0) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x42] = () -> {
+            flags.setZero(((registers.getD() >> 0) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x43] = () -> {
+            flags.setZero(((registers.getE() >> 0) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x44] = () -> {
+            flags.setZero(((registers.getH() >> 0) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x45] = () -> {
+            flags.setZero(((registers.getL() >> 0) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x46] = () -> {
+            flags.setZero(((mmu.readByte(registers.getHL()) >> 0) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 16;
+        };
+        cbOpcodeTable[0x47] = () -> {
+            flags.setZero(((registers.getA() >> 0) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
 
         // Bit 1
-        cbOpcodeTable[0x48] = () -> { flags.setZero(((registers.getB() >> 1) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x49] = () -> { flags.setZero(((registers.getC() >> 1) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x4A] = () -> { flags.setZero(((registers.getD() >> 1) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x4B] = () -> { flags.setZero(((registers.getE() >> 1) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x4C] = () -> { flags.setZero(((registers.getH() >> 1) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x4D] = () -> { flags.setZero(((registers.getL() >> 1) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x4E] = () -> { flags.setZero(((mmu.readByte(registers.getHL()) >> 1) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 16; };
-        cbOpcodeTable[0x4F] = () -> { flags.setZero(((registers.getA() >> 1) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
+        cbOpcodeTable[0x48] = () -> {
+            flags.setZero(((registers.getB() >> 1) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x49] = () -> {
+            flags.setZero(((registers.getC() >> 1) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x4A] = () -> {
+            flags.setZero(((registers.getD() >> 1) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x4B] = () -> {
+            flags.setZero(((registers.getE() >> 1) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x4C] = () -> {
+            flags.setZero(((registers.getH() >> 1) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x4D] = () -> {
+            flags.setZero(((registers.getL() >> 1) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x4E] = () -> {
+            flags.setZero(((mmu.readByte(registers.getHL()) >> 1) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 16;
+        };
+        cbOpcodeTable[0x4F] = () -> {
+            flags.setZero(((registers.getA() >> 1) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
 
         // Bit 2
-        cbOpcodeTable[0x50] = () -> { flags.setZero(((registers.getB() >> 2) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x51] = () -> { flags.setZero(((registers.getC() >> 2) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x52] = () -> { flags.setZero(((registers.getD() >> 2) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x53] = () -> { flags.setZero(((registers.getE() >> 2) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x54] = () -> { flags.setZero(((registers.getH() >> 2) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x55] = () -> { flags.setZero(((registers.getL() >> 2) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x56] = () -> { flags.setZero(((mmu.readByte(registers.getHL()) >> 2) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 16; };
-        cbOpcodeTable[0x57] = () -> { flags.setZero(((registers.getA() >> 2) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
+        cbOpcodeTable[0x50] = () -> {
+            flags.setZero(((registers.getB() >> 2) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x51] = () -> {
+            flags.setZero(((registers.getC() >> 2) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x52] = () -> {
+            flags.setZero(((registers.getD() >> 2) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x53] = () -> {
+            flags.setZero(((registers.getE() >> 2) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x54] = () -> {
+            flags.setZero(((registers.getH() >> 2) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x55] = () -> {
+            flags.setZero(((registers.getL() >> 2) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x56] = () -> {
+            flags.setZero(((mmu.readByte(registers.getHL()) >> 2) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 16;
+        };
+        cbOpcodeTable[0x57] = () -> {
+            flags.setZero(((registers.getA() >> 2) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
 
         // Bit 3
-        cbOpcodeTable[0x58] = () -> { flags.setZero(((registers.getB() >> 3) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x59] = () -> { flags.setZero(((registers.getC() >> 3) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x5A] = () -> { flags.setZero(((registers.getD() >> 3) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x5B] = () -> { flags.setZero(((registers.getE() >> 3) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x5C] = () -> { flags.setZero(((registers.getH() >> 3) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x5D] = () -> { flags.setZero(((registers.getL() >> 3) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x5E] = () -> { flags.setZero(((mmu.readByte(registers.getHL()) >> 3) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 16; };
-        cbOpcodeTable[0x5F] = () -> { flags.setZero(((registers.getA() >> 3) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
+        cbOpcodeTable[0x58] = () -> {
+            flags.setZero(((registers.getB() >> 3) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x59] = () -> {
+            flags.setZero(((registers.getC() >> 3) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x5A] = () -> {
+            flags.setZero(((registers.getD() >> 3) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x5B] = () -> {
+            flags.setZero(((registers.getE() >> 3) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x5C] = () -> {
+            flags.setZero(((registers.getH() >> 3) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x5D] = () -> {
+            flags.setZero(((registers.getL() >> 3) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x5E] = () -> {
+            flags.setZero(((mmu.readByte(registers.getHL()) >> 3) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 16;
+        };
+        cbOpcodeTable[0x5F] = () -> {
+            flags.setZero(((registers.getA() >> 3) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
 
         // Bit 4
-        cbOpcodeTable[0x60] = () -> { flags.setZero(((registers.getB() >> 4) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x61] = () -> { flags.setZero(((registers.getC() >> 4) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x62] = () -> { flags.setZero(((registers.getD() >> 4) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x63] = () -> { flags.setZero(((registers.getE() >> 4) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x64] = () -> { flags.setZero(((registers.getH() >> 4) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x65] = () -> { flags.setZero(((registers.getL() >> 4) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x66] = () -> { flags.setZero(((mmu.readByte(registers.getHL()) >> 4) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 16; };
-        cbOpcodeTable[0x67] = () -> { flags.setZero(((registers.getA() >> 4) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
+        cbOpcodeTable[0x60] = () -> {
+            flags.setZero(((registers.getB() >> 4) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x61] = () -> {
+            flags.setZero(((registers.getC() >> 4) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x62] = () -> {
+            flags.setZero(((registers.getD() >> 4) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x63] = () -> {
+            flags.setZero(((registers.getE() >> 4) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x64] = () -> {
+            flags.setZero(((registers.getH() >> 4) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x65] = () -> {
+            flags.setZero(((registers.getL() >> 4) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x66] = () -> {
+            flags.setZero(((mmu.readByte(registers.getHL()) >> 4) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 16;
+        };
+        cbOpcodeTable[0x67] = () -> {
+            flags.setZero(((registers.getA() >> 4) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
 
         // Bit 5
-        cbOpcodeTable[0x68] = () -> { flags.setZero(((registers.getB() >> 5) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x69] = () -> { flags.setZero(((registers.getC() >> 5) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x6A] = () -> { flags.setZero(((registers.getD() >> 5) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x6B] = () -> { flags.setZero(((registers.getE() >> 5) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x6C] = () -> { flags.setZero(((registers.getH() >> 5) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x6D] = () -> { flags.setZero(((registers.getL() >> 5) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x6E] = () -> { flags.setZero(((mmu.readByte(registers.getHL()) >> 5) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 16; };
-        cbOpcodeTable[0x6F] = () -> { flags.setZero(((registers.getA() >> 5) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
+        cbOpcodeTable[0x68] = () -> {
+            flags.setZero(((registers.getB() >> 5) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x69] = () -> {
+            flags.setZero(((registers.getC() >> 5) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x6A] = () -> {
+            flags.setZero(((registers.getD() >> 5) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x6B] = () -> {
+            flags.setZero(((registers.getE() >> 5) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x6C] = () -> {
+            flags.setZero(((registers.getH() >> 5) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x6D] = () -> {
+            flags.setZero(((registers.getL() >> 5) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x6E] = () -> {
+            flags.setZero(((mmu.readByte(registers.getHL()) >> 5) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 16;
+        };
+        cbOpcodeTable[0x6F] = () -> {
+            flags.setZero(((registers.getA() >> 5) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
 
         // Bit 6
-        cbOpcodeTable[0x70] = () -> { flags.setZero(((registers.getB() >> 6) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x71] = () -> { flags.setZero(((registers.getC() >> 6) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x72] = () -> { flags.setZero(((registers.getD() >> 6) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x73] = () -> { flags.setZero(((registers.getE() >> 6) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x74] = () -> { flags.setZero(((registers.getH() >> 6) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x75] = () -> { flags.setZero(((registers.getL() >> 6) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x76] = () -> { flags.setZero(((mmu.readByte(registers.getHL()) >> 6) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 16; };
-        cbOpcodeTable[0x77] = () -> { flags.setZero(((registers.getA() >> 6) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
+        cbOpcodeTable[0x70] = () -> {
+            flags.setZero(((registers.getB() >> 6) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x71] = () -> {
+            flags.setZero(((registers.getC() >> 6) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x72] = () -> {
+            flags.setZero(((registers.getD() >> 6) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x73] = () -> {
+            flags.setZero(((registers.getE() >> 6) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x74] = () -> {
+            flags.setZero(((registers.getH() >> 6) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x75] = () -> {
+            flags.setZero(((registers.getL() >> 6) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x76] = () -> {
+            flags.setZero(((mmu.readByte(registers.getHL()) >> 6) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 16;
+        };
+        cbOpcodeTable[0x77] = () -> {
+            flags.setZero(((registers.getA() >> 6) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
 
         // Bit 7
-        cbOpcodeTable[0x78] = () -> { flags.setZero(((registers.getB() >> 7) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x79] = () -> { flags.setZero(((registers.getC() >> 7) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x7A] = () -> { flags.setZero(((registers.getD() >> 7) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x7B] = () -> { flags.setZero(((registers.getE() >> 7) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x7C] = () -> { flags.setZero(((registers.getH() >> 7) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x7D] = () -> { flags.setZero(((registers.getL() >> 7) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
-        cbOpcodeTable[0x7E] = () -> { flags.setZero(((mmu.readByte(registers.getHL()) >> 7) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 16; };
-        cbOpcodeTable[0x7F] = () -> { flags.setZero(((registers.getA() >> 7) & 0x1) == 0); flags.setSubtract(false); flags.setHalfCarry(true); return 8; };
+        cbOpcodeTable[0x78] = () -> {
+            flags.setZero(((registers.getB() >> 7) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x79] = () -> {
+            flags.setZero(((registers.getC() >> 7) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x7A] = () -> {
+            flags.setZero(((registers.getD() >> 7) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x7B] = () -> {
+            flags.setZero(((registers.getE() >> 7) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x7C] = () -> {
+            flags.setZero(((registers.getH() >> 7) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x7D] = () -> {
+            flags.setZero(((registers.getL() >> 7) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+        cbOpcodeTable[0x7E] = () -> {
+            flags.setZero(((mmu.readByte(registers.getHL()) >> 7) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 16;
+        };
+        cbOpcodeTable[0x7F] = () -> {
+            flags.setZero(((registers.getA() >> 7) & 0x1) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(true);
+            return 8;
+        };
+
+        //=========================================
+        //============== RES 0x80 - 0xBF ==============
+
+        // Bit 0
+        cbOpcodeTable[0x80] = () -> {
+            registers.setB(registers.getB() & ~(1 << 0));
+            return 8;
+        };
+        cbOpcodeTable[0x81] = () -> {
+            registers.setC(registers.getC() & ~(1 << 0));
+            return 8;
+        };
+        cbOpcodeTable[0x82] = () -> {
+            registers.setD(registers.getD() & ~(1 << 0));
+            return 8;
+        };
+        cbOpcodeTable[0x83] = () -> {
+            registers.setE(registers.getE() & ~(1 << 0));
+            return 8;
+        };
+        cbOpcodeTable[0x84] = () -> {
+            registers.setH(registers.getH() & ~(1 << 0));
+            return 8;
+        };
+        cbOpcodeTable[0x85] = () -> {
+            registers.setL(registers.getL() & ~(1 << 0));
+            return 8;
+        };
+        cbOpcodeTable[0x86] = () -> {
+            mmu.writeByte(registers.getHL(), mmu.readByte(registers.getHL()) & ~(1 << 0));
+            return 16;
+        };
+        cbOpcodeTable[0x87] = () -> {
+            registers.setA(registers.getA() & ~(1 << 0));
+            return 8;
+        };
+
+        // Bit 1
+        cbOpcodeTable[0x88] = () -> {
+            registers.setB(registers.getB() & ~(1 << 1));
+            return 8;
+        };
+        cbOpcodeTable[0x89] = () -> {
+            registers.setC(registers.getC() & ~(1 << 1));
+            return 8;
+        };
+        cbOpcodeTable[0x8A] = () -> {
+            registers.setD(registers.getD() & ~(1 << 1));
+            return 8;
+        };
+        cbOpcodeTable[0x8B] = () -> {
+            registers.setE(registers.getE() & ~(1 << 1));
+            return 8;
+        };
+        cbOpcodeTable[0x8C] = () -> {
+            registers.setH(registers.getH() & ~(1 << 1));
+            return 8;
+        };
+        cbOpcodeTable[0x8D] = () -> {
+            registers.setL(registers.getL() & ~(1 << 1));
+            return 8;
+        };
+        cbOpcodeTable[0x8E] = () -> {
+            mmu.writeByte(registers.getHL(), mmu.readByte(registers.getHL()) & ~(1 << 1));
+            return 16;
+        };
+        cbOpcodeTable[0x8F] = () -> {
+            registers.setA(registers.getA() & ~(1 << 1));
+            return 8;
+        };
+
+        // Bit 2
+        cbOpcodeTable[0x90] = () -> {
+            registers.setB(registers.getB() & ~(1 << 2));
+            return 8;
+        };
+        cbOpcodeTable[0x91] = () -> {
+            registers.setC(registers.getC() & ~(1 << 2));
+            return 8;
+        };
+        cbOpcodeTable[0x92] = () -> {
+            registers.setD(registers.getD() & ~(1 << 2));
+            return 8;
+        };
+        cbOpcodeTable[0x93] = () -> {
+            registers.setE(registers.getE() & ~(1 << 2));
+            return 8;
+        };
+        cbOpcodeTable[0x94] = () -> {
+            registers.setH(registers.getH() & ~(1 << 2));
+            return 8;
+        };
+        cbOpcodeTable[0x95] = () -> {
+            registers.setL(registers.getL() & ~(1 << 2));
+            return 8;
+        };
+        cbOpcodeTable[0x96] = () -> {
+            mmu.writeByte(registers.getHL(), mmu.readByte(registers.getHL()) & ~(1 << 2));
+            return 16;
+        };
+        cbOpcodeTable[0x97] = () -> {
+            registers.setA(registers.getA() & ~(1 << 2));
+            return 8;
+        };
+
+        // Bit 3
+        cbOpcodeTable[0x98] = () -> {
+            registers.setB(registers.getB() & ~(1 << 3));
+            return 8;
+        };
+        cbOpcodeTable[0x99] = () -> {
+            registers.setC(registers.getC() & ~(1 << 3));
+            return 8;
+        };
+        cbOpcodeTable[0x9A] = () -> {
+            registers.setD(registers.getD() & ~(1 << 3));
+            return 8;
+        };
+        cbOpcodeTable[0x9B] = () -> {
+            registers.setE(registers.getE() & ~(1 << 3));
+            return 8;
+        };
+        cbOpcodeTable[0x9C] = () -> {
+            registers.setH(registers.getH() & ~(1 << 3));
+            return 8;
+        };
+        cbOpcodeTable[0x9D] = () -> {
+            registers.setL(registers.getL() & ~(1 << 3));
+            return 8;
+        };
+        cbOpcodeTable[0x9E] = () -> {
+            mmu.writeByte(registers.getHL(), mmu.readByte(registers.getHL()) & ~(1 << 3));
+            return 16;
+        };
+        cbOpcodeTable[0x9F] = () -> {
+            registers.setA(registers.getA() & ~(1 << 3));
+            return 8;
+        };
+
+        // Bit 4
+        cbOpcodeTable[0xA0] = () -> {
+            registers.setB(registers.getB() & ~(1 << 4));
+            return 8;
+        };
+        cbOpcodeTable[0xA1] = () -> {
+            registers.setC(registers.getC() & ~(1 << 4));
+            return 8;
+        };
+        cbOpcodeTable[0xA2] = () -> {
+            registers.setD(registers.getD() & ~(1 << 4));
+            return 8;
+        };
+        cbOpcodeTable[0xA3] = () -> {
+            registers.setE(registers.getE() & ~(1 << 4));
+            return 8;
+        };
+        cbOpcodeTable[0xA4] = () -> {
+            registers.setH(registers.getH() & ~(1 << 4));
+            return 8;
+        };
+        cbOpcodeTable[0xA5] = () -> {
+            registers.setL(registers.getL() & ~(1 << 4));
+            return 8;
+        };
+        cbOpcodeTable[0xA6] = () -> {
+            mmu.writeByte(registers.getHL(), mmu.readByte(registers.getHL()) & ~(1 << 4));
+            return 16;
+        };
+        cbOpcodeTable[0xA7] = () -> {
+            registers.setA(registers.getA() & ~(1 << 4));
+            return 8;
+        };
+
+        // Bit 5
+        cbOpcodeTable[0xA8] = () -> {
+            registers.setB(registers.getB() & ~(1 << 5));
+            return 8;
+        };
+        cbOpcodeTable[0xA9] = () -> {
+            registers.setC(registers.getC() & ~(1 << 5));
+            return 8;
+        };
+        cbOpcodeTable[0xAA] = () -> {
+            registers.setD(registers.getD() & ~(1 << 5));
+            return 8;
+        };
+        cbOpcodeTable[0xAB] = () -> {
+            registers.setE(registers.getE() & ~(1 << 5));
+            return 8;
+        };
+        cbOpcodeTable[0xAC] = () -> {
+            registers.setH(registers.getH() & ~(1 << 5));
+            return 8;
+        };
+        cbOpcodeTable[0xAD] = () -> {
+            registers.setL(registers.getL() & ~(1 << 5));
+            return 8;
+        };
+        cbOpcodeTable[0xAE] = () -> {
+            mmu.writeByte(registers.getHL(), mmu.readByte(registers.getHL()) & ~(1 << 5));
+            return 16;
+        };
+        cbOpcodeTable[0xAF] = () -> {
+            registers.setA(registers.getA() & ~(1 << 5));
+            return 8;
+        };
+
+        // Bit 6
+        cbOpcodeTable[0xB0] = () -> {
+            registers.setB(registers.getB() & ~(1 << 6));
+            return 8;
+        };
+        cbOpcodeTable[0xB1] = () -> {
+            registers.setC(registers.getC() & ~(1 << 6));
+            return 8;
+        };
+        cbOpcodeTable[0xB2] = () -> {
+            registers.setD(registers.getD() & ~(1 << 6));
+            return 8;
+        };
+        cbOpcodeTable[0xB3] = () -> {
+            registers.setE(registers.getE() & ~(1 << 6));
+            return 8;
+        };
+        cbOpcodeTable[0xB4] = () -> {
+            registers.setH(registers.getH() & ~(1 << 6));
+            return 8;
+        };
+        cbOpcodeTable[0xB5] = () -> {
+            registers.setL(registers.getL() & ~(1 << 6));
+            return 8;
+        };
+        cbOpcodeTable[0xB6] = () -> {
+            mmu.writeByte(registers.getHL(), mmu.readByte(registers.getHL()) & ~(1 << 6));
+            return 16;
+        };
+        cbOpcodeTable[0xB7] = () -> {
+            registers.setA(registers.getA() & ~(1 << 6));
+            return 8;
+        };
+
+        // Bit 7
+        cbOpcodeTable[0xB8] = () -> {
+            registers.setB(registers.getB() & ~(1 << 7));
+            return 8;
+        };
+        cbOpcodeTable[0xB9] = () -> {
+            registers.setC(registers.getC() & ~(1 << 7));
+            return 8;
+        };
+        cbOpcodeTable[0xBA] = () -> {
+            registers.setD(registers.getD() & ~(1 << 7));
+            return 8;
+        };
+        cbOpcodeTable[0xBB] = () -> {
+            registers.setE(registers.getE() & ~(1 << 7));
+            return 8;
+        };
+        cbOpcodeTable[0xBC] = () -> {
+            registers.setH(registers.getH() & ~(1 << 7));
+            return 8;
+        };
+        cbOpcodeTable[0xBD] = () -> {
+            registers.setL(registers.getL() & ~(1 << 7));
+            return 8;
+        };
+        cbOpcodeTable[0xBE] = () -> {
+            mmu.writeByte(registers.getHL(), mmu.readByte(registers.getHL()) & ~(1 << 7));
+            return 16;
+        };
+        cbOpcodeTable[0xBF] = () -> {
+            registers.setA(registers.getA() & ~(1 << 7));
+            return 8;
+        };
+
     }
 }
