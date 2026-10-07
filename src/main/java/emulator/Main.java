@@ -42,10 +42,7 @@ public class Main {
 
                 steps++;
 
-                if (cpu.isHalted()) {
-                    System.out.println("\n✅ CPU HALTED!");
-                    break;
-                }
+
             }
 
         } catch (Exception e) {
