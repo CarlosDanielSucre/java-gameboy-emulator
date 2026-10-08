@@ -751,6 +751,13 @@ public class CPU {
 
             return 12;
         };
+        opcodeTable[0x37] = () -> { /* SCF  */
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(true);
+
+            return 4;
+        };
         opcodeTable[0x38] = () -> { /* JR C,r8 */
             int opcodeNext = fetch();
             byte offSet = (byte) opcodeNext;
@@ -819,7 +826,13 @@ public class CPU {
 
             return 8;
         };
+        opcodeTable[0x3F] = () -> { /* CCF  */
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(!flags.isCarry());
 
+            return 4;
+        };
 
         //=========================================
         //============== 0x40 - 0x4F ==============
@@ -1289,6 +1302,21 @@ public class CPU {
 
             return 4;
         };
+        opcodeTable[0x88] = () -> { /* ADC A, B */
+            int b = registers.getB();
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a + b + carryIn;
+            boolean isHalfCarry = ((a & 0xF) + (b & 0xF) + carryIn) > 0xF;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
+
+            return 4;
+        };
         opcodeTable[0x89] = () -> { /* ADC A,C */
             int c = registers.getC();
             int a = registers.getA();
@@ -1304,53 +1332,94 @@ public class CPU {
 
             return 4;
         };
+        opcodeTable[0x8A] = () -> { /* ADC A,D */
+            int d = registers.getD();
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a + d + carryIn;
+            boolean isHalfCarry = ((a & 0xF) + (d & 0xF) + carryIn) > 0xF;
 
-        // ... continuation truncated here in tool due huge size; not ideal.
-
-        // This file was partially rewritten; it is not valid Java due truncation.
-
-    }
-
-    private void initCBOpcodeTable() {
-
-        //=========================================
-        //============== 0x10 - 0x1F ==============
-
-        cbOpcodeTable[0x19] = () -> { /* RR C */
-            int register = registers.getC();
-            boolean oldCarry = flags.isCarry();
-            int newCarryBit = register & 0x1;
-            int result = register >>> 1;
-
-            if (oldCarry) {
-                result = result | (1 << 7);
-            }
-
-            flags.setZero(result == 0);
+            flags.setZero((result & 0xFF) == 0);
             flags.setSubtract(false);
-            flags.setHalfCarry(false);
-            flags.setCarry(newCarryBit != 0);
-            registers.setC(result);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x8B] = () -> { /* ADC A,E */
+            int e = registers.getE();
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a + e + carryIn;
+            boolean isHalfCarry = ((a & 0xF) + (e & 0xF) + carryIn) > 0xF;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x8C] = () -> { /* ADC A,H */
+            int h = registers.getH();
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a + h + carryIn;
+            boolean isHalfCarry = ((a & 0xF) + (h & 0xF) + carryIn) > 0xF;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x8D] = () -> { /* ADC A,L */
+            int l = registers.getL();
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a + l + carryIn;
+            boolean isHalfCarry = ((a & 0xF) + (l & 0xF) + carryIn) > 0xF;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x8E] = () -> { /* ADC A,(HL)*/
+            int hl = mmu.readByte(registers.getHL());
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a + hl + carryIn;
+            boolean isHalfCarry = ((a & 0xF) + (hl & 0xF) + carryIn) > 0xF;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
 
             return 8;
         };
-        cbOpcodeTable[0x1A] = () -> { /* RR D */
-            int register = registers.getD();
-            boolean oldCarry = flags.isCarry();
-            int newCarryBit = register & 0x1;
-            int result = register >>> 1;
+        opcodeTable[0x8F] = () -> { /* ADC A,A */
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a + a + carryIn;
+            boolean isHalfCarry = ((a & 0xF) + (a & 0xF) + carryIn) > 0xF;
 
-            if (oldCarry) {
-                result = result | (1 << 7);
-            }
-
-            flags.setZero(result == 0);
+            flags.setZero((result & 0xFF) == 0);
             flags.setSubtract(false);
-            flags.setHalfCarry(false);
-            flags.setCarry(newCarryBit != 0);
-            registers.setD(result);
+            flags.setHalfCarry(isHalfCarry);
+            flags.setCarry(result > 0xFF);
+            registers.setA(result);
 
-            return 8;
+            return 4;
         };
         //=========================================
         //============== 0x90 0x9F ================
@@ -1459,7 +1528,117 @@ public class CPU {
 
             return 4;
         };
+        opcodeTable[0x98] = () -> { /* SBC A,B */
+            int a = registers.getA();
+            int value = registers.getB();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - value - carryIn;
 
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((value & 0xF) + carryIn));
+            flags.setCarry(a < (value + carryIn));
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x99] = () -> { /* SBC A,C */
+            int a = registers.getA();
+            int value = registers.getC();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - value - carryIn;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((value & 0xF) + carryIn));
+            flags.setCarry(a < (value + carryIn));
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x9A] = () -> { /* SBC A,D */
+            int a = registers.getA();
+            int value = registers.getD();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - value - carryIn;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((value & 0xF) + carryIn));
+            flags.setCarry(a < (value + carryIn));
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x9B] = () -> { /* SBC A,E */
+            int a = registers.getA();
+            int value = registers.getE();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - value - carryIn;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((value & 0xF) + carryIn));
+            flags.setCarry(a < (value + carryIn));
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x9C] = () -> { /* SBC A,H */
+            int a = registers.getA();
+            int value = registers.getH();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - value - carryIn;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((value & 0xF) + carryIn));
+            flags.setCarry(a < (value + carryIn));
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x9D] = () -> { /* SBC A,L */
+            int a = registers.getA();
+            int value = registers.getL();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - value - carryIn;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((value & 0xF) + carryIn));
+            flags.setCarry(a < (value + carryIn));
+            registers.setA(result);
+
+            return 4;
+        };
+        opcodeTable[0x9E] = () -> { /* SBC A, (HL)*/
+            int a = registers.getA();
+            int hl = mmu.readByte(registers.getHL());
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - hl - carryIn;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((hl & 0xF) + carryIn));
+            flags.setCarry(a < (hl + carryIn));
+            registers.setA(result);
+
+            return 8;
+        };
+        opcodeTable[0x9F] = () -> { /* SBC A,A */
+            int a = registers.getA();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - a - carryIn;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((a & 0xF) + carryIn));
+            flags.setCarry(a < (a + carryIn));
+            registers.setA(result);
+
+            return 4;
+        };
         //=========================================
         //============== 0xA0 0xAF ==============
         opcodeTable[0xA0] = () -> { /* AND B */
@@ -2202,6 +2381,20 @@ public class CPU {
             }
             return 12;
         };
+        opcodeTable[0xDE] = () -> { /* SBC A,d8 */
+            int a = registers.getA();
+            int value = fetch();
+            int carryIn = flags.isCarry() ? 1 : 0;
+            int result = a - value - carryIn;
+
+            flags.setZero((result & 0xFF) == 0);
+            flags.setSubtract(true);
+            flags.setHalfCarry((a & 0xF) < ((value & 0xF) + carryIn));
+            flags.setCarry(a < (value + carryIn));
+            registers.setA(result);
+
+            return 8;
+        };
         opcodeTable[0xDF] = () -> { /* RST 18H */
             int pcLow = registers.getPc() & 0xFF;
             int pcHigh = (registers.getPc() >> 8) & 0xFF;
@@ -2474,6 +2667,52 @@ public class CPU {
             registers.setPc(0x0038);
             return 16;
         };
+
+
+    }
+
+    private void initCBOpcodeTable() {
+
+        //=========================================
+        //============== 0x10 - 0x1F ==============
+
+        cbOpcodeTable[0x19] = () -> { /* RR C */
+            int register = registers.getC();
+            boolean oldCarry = flags.isCarry();
+            int newCarryBit = register & 0x1;
+            int result = register >>> 1;
+
+            if (oldCarry) {
+                result = result | (1 << 7);
+            }
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(newCarryBit != 0);
+            registers.setC(result);
+
+            return 8;
+        };
+        cbOpcodeTable[0x1A] = () -> { /* RR D */
+            int register = registers.getD();
+            boolean oldCarry = flags.isCarry();
+            int newCarryBit = register & 0x1;
+            int result = register >>> 1;
+
+            if (oldCarry) {
+                result = result | (1 << 7);
+            }
+
+            flags.setZero(result == 0);
+            flags.setSubtract(false);
+            flags.setHalfCarry(false);
+            flags.setCarry(newCarryBit != 0);
+            registers.setD(result);
+
+            return 8;
+        };
+
         //=========================================
         //============== 0x00 - 0x0F ==============
         cbOpcodeTable[0x00] = () -> { /* RLC B */

@@ -11,6 +11,8 @@ public class Main {
             byte[] romData = Files.readAllBytes(Path.of("roms/test/cpu_instrs.gb"));
 
             Cartridge cartridge = new Cartridge(romData);
+            System.out.println("Tipo de cartucho (0x0147): 0x" + Integer.toHexString(cartridge.readByte(0x0147)));
+            System.out.println("Tamanho da ROM (0x0148): 0x" + Integer.toHexString(cartridge.readByte(0x0148)));
             MMU mmu = new MMU(cartridge);
             CPU cpu = new CPU(mmu);
 
