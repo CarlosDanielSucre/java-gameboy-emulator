@@ -19,11 +19,8 @@ public class Main {
             cpu.getRegisters().setPc(0x0100);
 
             long steps = 0;
-            long maxSteps = 10000000;
-            int lastPC = -1;
-            int loopCount = 0;
 
-            while (steps < maxSteps) {
+            while (true) {
                 try {
                     int currentPC = cpu.getRegisters().getPc();
                     int opcode = mmu.readByte(currentPC);

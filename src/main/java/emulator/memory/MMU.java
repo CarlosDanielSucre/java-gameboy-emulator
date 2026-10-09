@@ -80,7 +80,7 @@ public class MMU {
         }
 
         if (address <= 0x7FFF) {
-
+            cartridge.writeByte(address, value);
         } else if (address >= 0x8000 && address <= 0x9FFF) {
             address -= 0x8000;
             vram[address] = value;

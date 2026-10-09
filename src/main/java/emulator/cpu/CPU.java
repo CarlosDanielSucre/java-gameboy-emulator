@@ -2,10 +2,6 @@ package cpu;
 
 import memory.MMU;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-
 public class CPU {
     private Registers registers;
     private Flags flags;
@@ -139,37 +135,6 @@ public class CPU {
             if (opcode == 240 && totalCycles == 250824) {
                 int nextByte = mmu.readByte(pcBeforeFetch + 1);
                 System.out.println("LDH offset: 0x" + Integer.toHexString(nextByte));
-            }
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter("arquivo.txt", true))) {
-                if(totalCycles >= 199672) {
-                    writer.write("PC: " + registers.getPc());
-                    writer.newLine();
-                    writer.write("A: " + registers.getA());
-                    writer.newLine();
-                    writer.write("F: " + flags.toByte());
-                    writer.newLine();
-                    writer.write("B: " + registers.getB());
-                    writer.newLine();
-                    writer.write("C: " + registers.getC());
-                    writer.newLine();
-                    writer.write("D: " + registers.getD());
-                    writer.newLine();
-                    writer.write("E: " + registers.getE());
-                    writer.newLine();
-                    writer.write("H: " + registers.getH());
-                    writer.newLine();
-                    writer.write("L: " + registers.getL());
-                    writer.newLine();
-                    writer.write("SP: " + registers.getSp());
-                    writer.newLine();
-                    writer.write("Cycles: " + totalCycles);
-                    writer.newLine();
-                    writer.write("Opcode: " + opcode);
-                    writer.newLine();
-                }
-
-            } catch (IOException e) {
-                System.out.println("Happens an error: " + e.getMessage());
             }
             Instruction instruction = opcodeTable[opcode];
             if(instruction == null) {
