@@ -41,13 +41,6 @@ public class MMU {
         }else if (address >= 0xFE00 && address <= 0xFE9F) {
             address -= 0xFE00;
             return oam[address];
-        } else if (address == 0xFF41) {
-            return ppu.getMode();
-        } else if (address == 0xFF44) {
-            return ppu.getLy();
-        } else if(address >= 0xFF80 && address <= 0xFFFE) {
-            address -= 0xFF80;
-            return hram[address];
         } else if (address == 0xFF04) {
             return timer.getDiv();
         } else if (address == 0xFF05) {
@@ -56,8 +49,25 @@ public class MMU {
             return timer.getTma();
         } else if (address == 0xFF07) {
             return timer.getTac();
-        }else if (address == 0xFF0F) {
+        } else if (address == 0xFF0F) {
             return interruptFlag;
+        } else if (address == 0xFF40){
+            return ppu.getLcdc();
+        } else if (address == 0xFF41) {
+            return ppu.getMode();
+        } else if (address == 0xFF42) {
+            return ppu.getScy();
+        } else if (address == 0xFF43) {
+            return ppu.getScx();
+        } else if (address == 0xFF44) {
+            return ppu.getLy();
+        } else if (address == 0xFF45) {
+            return ppu.getLyc();
+        } else if (address == 0xFF47) {
+            return ppu.getBgp();
+        }else if(address >= 0xFF80 && address <= 0xFFFE) {
+            address -= 0xFF80;
+            return hram[address];
         } else if (address == 0xFFFF) {
             return interruptEnable;
         }
@@ -99,6 +109,16 @@ public class MMU {
             timer.setTma(value);
         } else if (address == 0xFF07) {
             timer.setTac(value);
+        }else if (address == 0xFF40){
+            ppu.setLcdc(value);
+        } else if (address == 0xFF42) {
+            ppu.setScy(value);
+        } else if (address == 0xFF43) {
+            ppu.setScx(value);
+        } else if (address == 0xFF45) {
+            ppu.setLyc(value);
+        } else if (address == 0xFF47) {
+            ppu.setBgp(value);
         } else if (address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             hram[address] = value;

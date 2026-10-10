@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public class Main {
     public static void main(String[] args) {
         try {
-            byte[] romData = Files.readAllBytes(Path.of("roms/test/cpu_instrs.gb"));
+            byte[] romData = Files.readAllBytes(Path.of("roms/test/individual/01-special.gb"));
 
             Cartridge cartridge = new Cartridge(romData);
             System.out.println("Tipo de cartucho (0x0147): 0x" + Integer.toHexString(cartridge.readByte(0x0147)));
