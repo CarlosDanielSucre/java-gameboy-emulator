@@ -13,15 +13,18 @@ public class MMU {
     private int[] hram = new int[0x7F]; //127 bytes
     private int[] vram = new int[0x2000];
     private int[] oam = new int[0xA0];
-    private PPU ppu = new PPU();
+    private PPU ppu = new PPU(vram, oam);
     private int interruptEnable;
     private int interruptFlag;
     private Timer timer = new Timer();
 
 
     public void step(int cycles) {
-        ppu.step(cycles);
+        boolean vblankRequested = ppu.step(cycles);
         boolean timerOverflowed = timer.tick(cycles);
+        if (vblankRequested) {
+            interruptFlag |= 0x1; // bit 0 = VBlank
+        }
         if (timerOverflowed) {
             interruptFlag |= 0x4; // seta bit 2 (Timer) em IF
         }

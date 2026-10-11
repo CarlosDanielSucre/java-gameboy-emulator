@@ -1,14 +1,22 @@
 import cpu.CPU;
 import memory.Cartridge;
 import memory.MMU;
+import javax.swing.JFrame;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Main {
     public static void main(String[] args) {
+        JFrame window = new JFrame("GameBoy");
+        window.setSize(640, 576);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setLocationRelativeTo(null);
+        window.setVisible(true);
+
+
         try {
-            byte[] romData = Files.readAllBytes(Path.of("roms/test/individual/01-special.gb"));
+            byte[] romData = Files.readAllBytes(Path.of("roms/test/cpu_instrs.gb"));
 
             Cartridge cartridge = new Cartridge(romData);
             System.out.println("Tipo de cartucho (0x0147): 0x" + Integer.toHexString(cartridge.readByte(0x0147)));

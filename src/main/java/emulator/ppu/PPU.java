@@ -3,15 +3,48 @@ package ppu;
 public class PPU {
     private int cycleCounter = 0;
     private int ly = 0;
-    private int lcdc = 0x91; //inicialized screen on
+    private int lcdc = 0x91; //inicialized screen ON
     private int scy, scx;
     private int lyc;
     private int bgp = 0xFC;
-
+    private final int[] vram;
+    private final int[] framebuffer = new int[160 * 144];
     private int mode = 2;
 
-    public void step(int cycles) {
-        if ((lcdc & 0x80) == 0) return;
+    public PPU(int[] vram, int[] oam) {
+        this.vram = vram;
+    }
+
+    public int[] getFramebuffer() {
+        return framebuffer;
+    }
+
+    public void renderScanline() {
+        int tilemapBase;
+        if (getBit3(lcdc)) {
+            tilemapBase = 0x9C00;
+        } else {
+            tilemapBase = 0x9800;
+        }
+        for(int x = 0; x <= 160; x ++) {
+            int bgX = (x + scx) & 0xFF;
+            int bgY = (ly + scy) & 0xFF;
+            int tileCol = bgX / 8;
+            int tileRow = bgY / 8;
+
+        }
+    }
+
+    private boolean getBit3(int value) {
+        int result = value >> 3;
+        result = result & 0x1;
+        return result == 1;
+    }
+
+    public boolean step(int cycles) {
+        boolean overflowed = false;
+
+        if ((lcdc & 0x80) == 0) return false;
         cycleCounter += cycles;
 
         if (ly < 144) {
@@ -22,6 +55,9 @@ public class PPU {
             } else if (mode == 0 && cycleCounter >= 456) {
                 cycleCounter -= 456;
                 ly++;
+                if (ly == 144) {
+                    overflowed = true;
+                }
                 mode = (ly < 144) ? 2 : 1;
             }
         } else {
@@ -34,6 +70,7 @@ public class PPU {
                 }
             }
         }
+        return overflowed;
     }
     public int getLy() {
         return ly;
