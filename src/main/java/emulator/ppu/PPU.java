@@ -21,24 +21,28 @@ public class PPU {
 
     public void renderScanline() {
         int tilemapBase;
-        if (getBit3(lcdc)) {
+        if (isBitSet(lcdc, 3)) {
             tilemapBase = 0x9C00;
         } else {
             tilemapBase = 0x9800;
         }
-        for(int x = 0; x <= 160; x ++) {
+        int bgY = (ly + scy) & 0xFF;
+        int tileRow = bgY / 8;
+        for(int x = 0; x < 160; x ++) {
             int bgX = (x + scx) & 0xFF;
-            int bgY = (ly + scy) & 0xFF;
             int tileCol = bgX / 8;
-            int tileRow = bgY / 8;
-
+            int tileMapIndex = tilemapBase - 0x8000 + tileRow * 32 + tileCol;
+            int tileNumber = vram[tileMapIndex];
+            if (isBitSet(lcdc,4)) {
+                tileNumber = tileNumber * 16;
+            } else {
+                tileNumber = 0x1000 + ((byte) tileNumber) * 16;
+            }
         }
     }
-
-    private boolean getBit3(int value) {
-        int result = value >> 3;
-        result = result & 0x1;
-        return result == 1;
+    private boolean isBitSet(int value, int bit) {
+        int result = value >> bit;
+        return (result & 0x1) == 1;
     }
 
     public boolean step(int cycles) {
