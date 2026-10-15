@@ -32,11 +32,11 @@ public class PPU {
             int bgX = (x + scx) & 0xFF;
             int tileCol = bgX / 8;
             int tileMapIndex = tilemapBase - 0x8000 + tileRow * 32 + tileCol;
-            int tileNumber = vram[tileMapIndex];
+            int tileDataIndex = vram[tileMapIndex];
             if (isBitSet(lcdc,4)) {
-                tileNumber = tileNumber * 16;
+                tileDataIndex = tileDataIndex * 16;
             } else {
-                tileNumber = 0x1000 + ((byte) tileNumber) * 16;
+                tileDataIndex = 0x1000 + ((byte) tileDataIndex) * 16;
             }
         }
     }
