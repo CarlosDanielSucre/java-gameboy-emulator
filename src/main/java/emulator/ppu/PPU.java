@@ -9,6 +9,7 @@ public class PPU {
     private int bgp = 0xFC;
     private final int[] vram;
     private final int[] framebuffer = new int[160 * 144];
+    private static final int[] SHADES = {0xFFFFFF, 0xAAAAAA, 0x555555, 0x000000};
     private int mode = 2;
 
     public PPU(int[] vram, int[] oam) {
@@ -20,24 +21,45 @@ public class PPU {
     }
 
     public void renderScanline() {
-        int tilemapBase;
-        if (isBitSet(lcdc, 3)) {
-            tilemapBase = 0x9C00;
-        } else {
-            tilemapBase = 0x9800;
+
+        if (!isBitSet(lcdc, 0)) {
+            for (int x = 0; x < 160; x++) {
+                framebuffer[ly * 160 + x] = SHADES[0];
+            }
+            return;
         }
+
+        int tilemapBase = isBitSet(lcdc, 3) ? 0x9C00 : 0x9800;
+        boolean unsignedTiles = isBitSet(lcdc,4);
         int bgY = (ly + scy) & 0xFF;
         int tileRow = bgY / 8;
+        int lineInTile = bgY % 8;
+
         for(int x = 0; x < 160; x ++) {
             int bgX = (x + scx) & 0xFF;
             int tileCol = bgX / 8;
+
             int tileMapIndex = tilemapBase - 0x8000 + tileRow * 32 + tileCol;
-            int tileDataIndex = vram[tileMapIndex];
-            if (isBitSet(lcdc,4)) {
-                tileDataIndex = tileDataIndex * 16;
+            int tileNumber = vram[tileMapIndex];
+
+            int tileDataIndex;
+
+            if (unsignedTiles) {
+                tileDataIndex = tileNumber * 16;
             } else {
-                tileDataIndex = 0x1000 + ((byte) tileDataIndex) * 16;
+                tileDataIndex = 0x1000 + ((byte) tileNumber) * 16;
             }
+
+            int low = vram[tileDataIndex + lineInTile * 2];
+            int high = vram[tileDataIndex + lineInTile * 2 + 1];
+
+            int bit = 7 - (bgX % 8);
+            int bitLow = (low >> bit) & 1;
+            int bitHigh = (high >> bit) & 1;
+            int color = (bitHigh << 1) | bitLow;
+            System.out.println(color);
+            int shade = (bgp >> (color * 2)) & 0x3;
+            framebuffer[ly * 160 + x] = SHADES[shade];
         }
     }
     private boolean isBitSet(int value, int bit) {
@@ -56,6 +78,7 @@ public class PPU {
                 mode = 3;
             } else if (mode == 3 && cycleCounter >= 80 + 172) {
                 mode = 0;
+                renderScanline();
             } else if (mode == 0 && cycleCounter >= 456) {
                 cycleCounter -= 456;
                 ly++;
