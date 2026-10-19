@@ -1,6 +1,8 @@
 import cpu.CPU;
 import memory.Cartridge;
 import memory.MMU;
+import ppu.Screen;
+
 import javax.swing.JFrame;
 
 import java.nio.file.Files;
@@ -9,10 +11,24 @@ import java.nio.file.Path;
 public class Main {
     public static void main(String[] args) {
         JFrame window = new JFrame("GameBoy");
-        window.setSize(640, 576);
+        Screen screen = new Screen();
+        window.add(screen);
+        window.pack();
+
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLocationRelativeTo(null);
         window.setVisible(true);
+        int[] test = new int[160 * 144];
+        for (int y = 0; y < 144; y++) {
+            for (int x = 0; x < 160; x++) {
+                if (((x / 8) + (y / 8)) % 2 == 0) {
+                    test[y * 160 + x] = 0xFFFFFF; // branco
+                } else {
+                    test[y * 160 + x] = 0x000000; // preto
+                }
+            }
+        }
+        screen.updateFrame(test);
 
 
         try {

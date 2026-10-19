@@ -57,7 +57,6 @@ public class PPU {
             int bitLow = (low >> bit) & 1;
             int bitHigh = (high >> bit) & 1;
             int color = (bitHigh << 1) | bitLow;
-            System.out.println(color);
             int shade = (bgp >> (color * 2)) & 0x3;
             framebuffer[ly * 160 + x] = SHADES[shade];
         }
