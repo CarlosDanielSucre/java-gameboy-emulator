@@ -1,60 +1,61 @@
 # Java Game Boy Emulator
 
-Este projeto é um emulador de Game Boy em Java, desenvolvido como estudo de arquitetura de computadores, CPU, memória, periféricos e emulação de hardware. O objetivo principal é aprender como um console antigo funciona internamente, em vez de apenas usar um software pronto.
+This project is a Game Boy emulator written in Java as a study of computer architecture, CPU design, memory mapping, peripherals, and hardware emulation. The goal is to learn how an old console works internally instead of only using a ready-made emulator.
 
-O projeto foi construído para estudar:
+It was built to study:
 
-- a CPU do Game Boy
-- a memória e o mapeamento de endereços
-- interrupções e ciclos de máquina
-- renderização e PPU
-- timers e sincronização
-- cartuchos e ROMs
-- debugging em nível de hardware
+- the Game Boy CPU
+- memory organization and address mapping
+- interrupts and machine cycles
+- PPU rendering and screen updates
+- timers and synchronization
+- cartridges and ROM handling
+- low-level debugging and hardware emulation
 
-## Objetivo do projeto
+## Project Goal
 
-O foco não é entregar um emulador perfeito, mas sim desenvolver uma base realista para entender como um Game Boy funciona por dentro. Esse tipo de projeto ajuda a compreender conceitos de baixo nível que muitas vezes ficam invisíveis em aplicações de alto nível.
+This project is not intended to be a perfect production-grade emulator. Its main purpose is to provide a realistic learning experience about how the Game Boy works internally. This kind of project helps understand areas of computer science that are often hidden behind high-level software abstractions.
 
-## O que você aprende com um projeto como este
+## What You Learn by Building a Project Like This
 
-### 1. Arquitetura de CPU
+### 1. CPU Architecture
 
-Você aprende como a CPU:
+You learn how the CPU:
 
-- lê instruções da memória
-- atualiza o Program Counter (PC)
-- altera registradores
-- manipula flags
-- executa operações aritméticas, lógicas e de transferência
-- faz saltos, chamadas e retornos
+- fetches instructions from memory
+- updates the Program Counter (PC)
+- manipulates registers
+- updates flags
+- executes arithmetic, logical, and data-transfer operations
+- performs jumps, calls, and returns
+- uses the stack
 
-No Game Boy, a CPU é uma variação do Z80. Isso permite estudar conceitos essenciais como:
+The Game Boy CPU is based on a Z80-like architecture, which makes it a great platform to study:
 
-- registradores de 8 bits e 16 bits
-- endereçamento de memória
-- instruções condicionais
-- stack
-- flags Zero, Carry, Half Carry e Subtract
-- ciclos de instrução
+- 8-bit and 16-bit registers
+- memory addressing modes
+- conditional execution
+- stack behavior
+- Zero, Carry, Half Carry, and Subtract flags
+- instruction timing and cycles
 
-### 2. Organização da memória
+### 2. Memory Organization
 
-O emulador precisa modelar a memória do Game Boy com precisão suficiente para reproduzir o comportamento do hardware:
+An emulator must model the Game Boy memory system in a way that reflects the actual hardware:
 
-- ROM do cartucho
-- RAM interna
+- cartridge ROM
+- RAM
 - VRAM
 - WRAM
-- memória de I/O
-- mapeamento de endereços especiais
-- áreas de controle e periféricos
+- I/O memory
+- special address ranges
+- control areas and peripheral mappings
 
-Você passa a entender que a memória não é um espaço "genérico": ela é organizada por região, e cada região tem um papel específico.
+This teaches that memory is not just a generic array. It is organized by region, and each region has a specific function within the system.
 
-### 3. Interrupções
+### 3. Interrupts
 
-As interrupções são fundamentais em qualquer sistema embarcado. No Game Boy, elas podem acontecer por:
+Interrupts are fundamental in embedded systems. In the Game Boy, interrupts can happen due to:
 
 - VBlank
 - LCD STAT
@@ -62,73 +63,74 @@ As interrupções são fundamentais em qualquer sistema embarcado. No Game Boy, 
 - Serial
 - Joypad
 
-Aqui você aprende:
+You learn:
 
-- como o processador identifica interrupções pendentes
-- como ele salva o estado atual
-- como o fluxo da CPU é redirecionado para um vetor específico
-- como o mecanismo IME/DI/EI funciona
+- how pending interrupts are detected
+- how the processor saves its current state
+- how execution is redirected to the correct interrupt vector
+- how IME, DI, and EI behave
 
-### 4. PPU e renderização
+### 4. PPU and Rendering
 
-A PPU (Picture Processing Unit) é responsável por desenhar o conteúdo da tela. Nesse estudo, você aprende:
+The PPU (Picture Processing Unit) is responsible for drawing the screen. Studying it teaches:
 
-- linhas de varredura
+- scanlines
 - frames
-- HBlank e VBlank
-- sprites e tiles
-- background e window
-- prioridade visual
-- timing de renderização
+- HBlank and VBlank
+- tiles and backgrounds
+- sprites and object rendering
+- window rendering
+- visual priorities
+- timing between CPU and display updates
 
-Este é um dos pontos mais importantes do projeto, porque a tela do Game Boy é muito mais do que um buffer simples: ela é um sistema sincronizado com o processador e com o relógio do console.
+This is one of the most important parts of the project because the Game Boy display is not just a simple buffer; it is a hardware subsystem synchronized with CPU execution and clock timing.
 
-### 5. Timing e ciclos de máquina
+### 5. Timing and Machine Cycles
 
-No hardware real, tudo acontece em tempo. Cada instrução precisa de um número de ciclos, e a PPU, o timer e a CPU precisam cooperar. Isso ensina a importância de:
+In real hardware, everything happens in time. Each instruction consumes a number of cycles, and the CPU, timer, and PPU must all cooperate. This introduces concepts such as:
 
-- ciclos de máquina
-- sincronização de componentes
-- temporização em sistemas embarcados
-- debugging baseado em estados e timeline
+- machine cycles
+- synchronization between components
+- timing in embedded systems
+- debugging using state progression and timeline analysis
 
-### 6. Cartuchos e ROMs
+### 6. Cartridges and ROMs
 
-Os cartuchos não são apenas arquivos binários; eles possuem vários tipos de mapeamento e comportamento. Ao estudar isso, você entende:
+Cartridges are more than binary files. They include different memory layouts and mapping behavior. By studying them, you understand:
 
-- como a ROM é lida
-- como o endereço do cartucho é mapeado
-- como a RAM externa funciona
-- como diferentes tipos de cartuchos mudam o acesso à memória
+- how the ROM is read
+- how address mapping behaves
+- how external RAM works
+- how different cartridge types affect memory access
 
-### 7. Debugging de baixo nível
+### 7. Low-Level Debugging
 
-Projeto de emulação exige muita observação do estado interno do sistema. Você aprende a depurar:
+Emulator projects require a lot of internal state observation. You learn how to debug:
 
-- valores de registradores
-- flags
-- PC e SP
-- memória em endereços específicos
-- instruções não implementadas
-- comportamento estranho em condicional e loops
+- register values
+- flag states
+- PC and SP
+- memory contents at specific addresses
+- unimplemented instructions
+- strange conditional behavior and loops
 
-Essa prática melhora muito a habilidade de encontrar bugs em software real.
+This develops practical debugging habits that transfer to real software engineering and hardware-related work.
 
-### 8. Leitura de especificações e documentação técnica
+### 8. Reading Technical Specifications
 
-Emuladores reais dependem de documentação técnica. Esse projeto força você a ler e interpretar:
+A real emulator depends on technical documentation. This project forces you to interpret:
 
-- tabelas de instrução
-- descrições de hardware
-- diagramas de memória
-- regras de interrupção
-- comportamento de PPU e timer
+- instruction tables
+- hardware behavior
+- memory maps
+- interrupt rules
+- PPU and timer behavior
 
-Isso ajuda a desenvolver a capacidade de transformar especificações em código funcional.
+This develops the ability to translate specifications into working code.
 
-## Estrutura do projeto
+## Typical Project Structure
 
-A estrutura básica do projeto costuma ser organizada em módulos, como:
+A project like this is usually organized into modules such as:
 
 ```text
 src/
@@ -153,74 +155,74 @@ src/
 └── Main.java
 ```
 
-### Fluxo típico de execução
+### Typical Execution Flow
 
 ```text
-1. Carregar ROM
-2. Mapeamento de memória
-3. CPU busca instrução
-4. Decodificação do opcode
-5. Execução da instrução
-6. Atualização de flags
-7. Progressão do clock
-8. Atualização de timer/PPU/interrupções
+1. Load ROM
+2. Map memory regions
+3. CPU fetches instruction
+4. Decode opcode
+5. Execute instruction
+6. Update flags
+7. Advance clock cycle
+8. Update timer / PPU / interrupts
 ```
 
-## Por que é um bom projeto para estudo
+## Why This Is a Great Learning Project
 
-Este tipo de projeto combina diversas áreas do conhecimento:
+This kind of project combines many important areas of computer science:
 
-- arquitetura de computadores
-- lógica digital
-- sistemas embarcados
-- desenvolvimento em Java
-- organização de software em módulos
-- debug e testes
-- leitura de documentação técnica
+- computer architecture
+- digital logic
+- embedded systems
+- Java development
+- modular software design
+- testing and debugging
+- technical documentation reading
 
-Além disso, ele ensina a pensar em termos de:
+It also teaches you to think in terms of:
 
 - bits
 - bytes
-- estados
-- ciclos
+- states
+- cycles
 - timing
-- hardware e memória
+- hardware and memory behavior
 
-Isso aumenta muito a compreensão de como sistemas computacionais realmente funcionam.
+This deepens your understanding of how computing systems really work.
 
-## Estado do projeto
+## Project Status
 
-Este repositório está em desenvolvimento e foi pensado como estudo prático. Isso significa que ele pode estar incompleto em algumas partes, em especial em áreas como:
+This repository is currently in active development and is intended as a practical learning project. That means some parts may still be incomplete or simplified, especially in areas such as:
 
-- PPU
-- MMU
-- timer
-- interrupts
-- cartuchos com MBC
-- compatibilidade com ROMs reais
+- PPU emulation
+- MMU behavior
+- timer accuracy
+- interrupt handling
+- cartridge support
+- compatibility with real ROMs
 
-Essa limitação faz parte do processo de aprendizagem. O objetivo central é aprender, testar e evoluir a implementação aos poucos.
+This limitation is part of the learning process. The goal is to understand, test, and improve the implementation step by step.
 
-## Roadmap de aprendizado sugerido
+## Suggested Learning Roadmap
 
-1. Implementar a CPU básica
-2. Adicionar registradores e flags
-3. Mapear memória e ROM
-4. Implementar instruções de carga e controle
-5. Executar testes simples de opcode
-6. Adicionar interrupções
-7. Estudar PPU e timing
-8. Implementar timer e entrada
-9. Melhorar a compatibilidade com cartuchos
-10. Depurar e validar comportamento real
+1. Implement the basic CPU
+2. Add registers and flags
+3. Map memory and ROM access
+4. Implement load and control instructions
+5. Run simple opcode tests
+6. Add interrupts
+7. Study and implement PPU timing
+8. Add timer and input handling
+9. Improve cartridge compatibility
+10. Debug and validate behavior against expected hardware semantics
 
-## Conclusão
+## Conclusion
 
-Um emulador de Game Boy é um projeto excelente para estudo porque reúne muitos conceitos importantes de computação em uma aplicação concreta e visual. Ele ensina mais do que programação em Java: ensina como um sistema computacional funciona por dentro.
+A Game Boy emulator is an excellent study project because it brings together many essential ideas in computing in one concrete, visual application. It teaches more than Java programming: it teaches how a computing system works from the inside.
 
-Se você quiser desenvolver um projeto como esse, não precisa começar do zero no mundo inteiro. O caminho mais eficiente é quebrar em módulos pequenos, testar cada parte isoladamente e evoluir junto com o entendimento do hardware.
+If you want to build a project like this, the best approach is to break it down into small modules, test each part in isolation, and evolve the system as your understanding of the hardware improves.
 
 ---
 
-Este README foi feito para ajudar outros estudantes a entender o valor didático do projeto e os conceitos que ele aborda.
+This README is designed to explain the educational value of the project and the concepts it covers.
