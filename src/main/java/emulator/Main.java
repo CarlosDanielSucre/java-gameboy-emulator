@@ -1,6 +1,7 @@
 import cpu.CPU;
 import memory.Cartridge;
 import memory.MMU;
+import ppu.PPU;
 import ppu.Screen;
 
 import javax.swing.JFrame;
@@ -14,21 +15,9 @@ public class Main {
         Screen screen = new Screen();
         window.add(screen);
         window.pack();
-
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLocationRelativeTo(null);
         window.setVisible(true);
-        int[] test = new int[160 * 144];
-        for (int y = 0; y < 144; y++) {
-            for (int x = 0; x < 160; x++) {
-                if (((x / 8) + (y / 8)) % 2 == 0) {
-                    test[y * 160 + x] = 0xFFFFFF; // branco
-                } else {
-                    test[y * 160 + x] = 0x000000; // preto
-                }
-            }
-        }
-        screen.updateFrame(test);
 
 
         try {
@@ -39,20 +28,16 @@ public class Main {
             System.out.println("Tamanho da ROM (0x0148): 0x" + Integer.toHexString(cartridge.readByte(0x0148)));
             MMU mmu = new MMU(cartridge);
             CPU cpu = new CPU(mmu);
-
-            cpu.getRegisters().setPc(0x0100);
+            PPU ppu = mmu.getPpu();
+            int[] framebuffer = ppu.getFramebuffer();
 
             long steps = 0;
 
             while (true) {
                 try {
-                    int currentPC = cpu.getRegisters().getPc();
-                    int opcode = mmu.readByte(currentPC);
-
-                    cpu.step();
-
-
-                    int newPC = cpu.getRegisters().getPc();
+                    if (cpu.step()) {
+                        screen.updateFrame(framebuffer);
+                    }
 
                 } catch (Exception e) {
                     System.out.println("\n❌ ERRO!");

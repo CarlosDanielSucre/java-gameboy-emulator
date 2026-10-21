@@ -18,8 +18,12 @@ public class MMU {
     private int interruptFlag;
     private Timer timer = new Timer();
 
+    public PPU getPpu () {
+        return this.ppu;
+    }
 
-    public void step(int cycles) {
+
+    public boolean step(int cycles) {
         boolean vblankRequested = ppu.step(cycles);
         boolean timerOverflowed = timer.tick(cycles);
         if (vblankRequested) {
@@ -28,6 +32,7 @@ public class MMU {
         if (timerOverflowed) {
             interruptFlag |= 0x4; // seta bit 2 (Timer) em IF
         }
+        return vblankRequested;
     }
 
     public int readByte(int address) {

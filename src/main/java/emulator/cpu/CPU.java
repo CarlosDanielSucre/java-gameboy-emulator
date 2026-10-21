@@ -38,7 +38,7 @@ public class CPU {
         return ((a & 0xF) + (b & 0xF) > 0xF);
     }
 
-    public void step() {
+    public boolean step() {
         int ie = mmu.readByte(0xFFFF);
         int iFlag = mmu.readByte(0xFF0F);
         int pending = ie & iFlag;
@@ -142,9 +142,9 @@ public class CPU {
             }
             int cycles = instruction.execute();
             totalCycles += cycles;
-            mmu.step(cycles);
+            return mmu.step(cycles);
         } else {
-            mmu.step(4);
+            return mmu.step(4);
         }
 
     }
