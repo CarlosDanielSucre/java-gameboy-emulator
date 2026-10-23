@@ -11,13 +11,22 @@ public class PPU {
     private final int[] framebuffer = new int[160 * 144];
     private static final int[] SHADES = {0xFFFFFF, 0xAAAAAA, 0x555555, 0x000000};
     private int mode = 2;
+    private final int[] oam;
+    private final int[] bgColorIds = new int[160];
+
+    private int obp0 = 0xFF;
+    private int obp1 = 0xFF;
 
     public PPU(int[] vram, int[] oam) {
         this.vram = vram;
+        this.oam = oam;
     }
 
     public int[] getFramebuffer() {
         return framebuffer;
+    }
+    public void renderSpritesLine() {
+
     }
 
     public void renderScanline() {

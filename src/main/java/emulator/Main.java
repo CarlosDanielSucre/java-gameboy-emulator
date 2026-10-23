@@ -32,11 +32,33 @@ public class Main {
             int[] framebuffer = ppu.getFramebuffer();
 
             long steps = 0;
-
+            long alvo = System.nanoTime();
+            int countFps = 0;
+            long secondInitial = System.nanoTime();
             while (true) {
                 try {
+                    long timeRest;
+
+
                     if (cpu.step()) {
+                        alvo += 16742706;
                         screen.updateFrame(framebuffer);
+                        countFps++;
+                        if ((System.nanoTime() - secondInitial) >= 1_000_000_000) {
+                            System.out.println(countFps);
+                            secondInitial = System.nanoTime();
+                            countFps = 0;
+                        }
+                        timeRest = alvo - System.nanoTime();
+                        if (timeRest < -100_000_000) {
+                            alvo = System.nanoTime();
+                        }
+                        if (timeRest > 0) {
+                            Thread.sleep(
+                                    timeRest / 1_000_000,
+                                    (int) (timeRest % 1_000_000)
+                            );
+                        }
                     }
 
                 } catch (Exception e) {
