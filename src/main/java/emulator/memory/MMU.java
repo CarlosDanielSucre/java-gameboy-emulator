@@ -17,7 +17,6 @@ public class MMU {
     private int interruptEnable;
     private int interruptFlag;
     private Timer timer = new Timer();
-
     public PPU getPpu () {
         return this.ppu;
     }
@@ -49,6 +48,9 @@ public class MMU {
         }else if (address >= 0xFE00 && address <= 0xFE9F) {
             address -= 0xFE00;
             return oam[address];
+        }
+        else if (address == 0xFF00) {
+            return 0xFF;
         } else if (address == 0xFF04) {
             return timer.getDiv();
         } else if (address == 0xFF05) {
@@ -109,6 +111,8 @@ public class MMU {
             address -= 0xFE00;
             oam[address] = value;
 
+        } else if (address == 0xFF00) {
+            // Temporariamente: nenhum botão pressionado.
         } else if (address == 0xFF04) {
             timer.resetDiv();
         } else if (address == 0xFF05) {
