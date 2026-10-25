@@ -1,4 +1,5 @@
 import cpu.CPU;
+import input.Joypad;
 import memory.Cartridge;
 import memory.MMU;
 import ppu.PPU;
@@ -12,28 +13,25 @@ import java.nio.file.Path;
 public class Main {
     public static void main(String[] args) {
         JFrame window = new JFrame("GameBoy");
-        Screen screen = new Screen();
-        window.add(screen);
-        window.pack();
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setLocationRelativeTo(null);
-        window.setVisible(true);
-
-
         try {
             byte[] romData = Files.readAllBytes(Path.of("roms/test/tetris.gb"));
 
             Cartridge cartridge = new Cartridge(romData);
-            System.out.println("Tipo de cartucho (0x0147): 0x" + Integer.toHexString(cartridge.readByte(0x0147)));
-            System.out.println("Tamanho da ROM (0x0148): 0x" + Integer.toHexString(cartridge.readByte(0x0148)));
-            MMU mmu = new MMU(cartridge);
+            Joypad joypad = new Joypad();
+            MMU mmu = new MMU(cartridge, joypad);
             CPU cpu = new CPU(mmu);
+            Screen screen = new Screen(joypad);
+            window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            window.setLocationRelativeTo(null);
+            window.add(screen);
+            window.pack();
+            window.setVisible(true);
+            screen.requestFocusInWindow();
             PPU ppu = mmu.getPpu();
             int[] framebuffer = ppu.getFramebuffer();
 
             long steps = 0;
             long alvo = System.nanoTime();
-            int countFps = 0;
             long secondInitial = System.nanoTime();
             while (true) {
                 try {
@@ -43,11 +41,8 @@ public class Main {
                     if (cpu.step()) {
                         alvo += 16742706;
                         screen.updateFrame(framebuffer);
-                        countFps++;
                         if ((System.nanoTime() - secondInitial) >= 1_000_000_000) {
-                            System.out.println(countFps);
                             secondInitial = System.nanoTime();
-                            countFps = 0;
                         }
                         timeRest = alvo - System.nanoTime();
                         if (timeRest < -100_000_000) {

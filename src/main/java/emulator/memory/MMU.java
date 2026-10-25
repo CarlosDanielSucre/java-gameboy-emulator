@@ -1,13 +1,16 @@
 package memory;
 
+import input.Joypad;
 import ppu.PPU;
 import timer.Timer;
 
 public class MMU {
     private final Cartridge cartridge;
+    private final Joypad joypad;
 
-    public MMU(Cartridge cartridge) {
+    public MMU(Cartridge cartridge, Joypad joypad) {
         this.cartridge = cartridge;
+        this.joypad = joypad;
     }
     private int[] wram = new int[0x2000]; //8KB
     private int[] hram = new int[0x7F]; //127 bytes
@@ -50,7 +53,7 @@ public class MMU {
             return oam[address];
         }
         else if (address == 0xFF00) {
-            return 0xFF;
+            return joypad.read();
         } else if (address == 0xFF04) {
             return timer.getDiv();
         } else if (address == 0xFF05) {
@@ -73,6 +76,8 @@ public class MMU {
             return ppu.getLy();
         } else if (address == 0xFF45) {
             return ppu.getLyc();
+        } else if (address == 0xFF46) {
+            // no implemented
         } else if (address == 0xFF47) {
             return ppu.getBgp();
         }else if(address >= 0xFF80 && address <= 0xFFFE) {
@@ -112,7 +117,7 @@ public class MMU {
             oam[address] = value;
 
         } else if (address == 0xFF00) {
-            // Temporariamente: nenhum botão pressionado.
+            joypad.write(value);
         } else if (address == 0xFF04) {
             timer.resetDiv();
         } else if (address == 0xFF05) {
@@ -129,6 +134,12 @@ public class MMU {
             ppu.setScx(value);
         } else if (address == 0xFF45) {
             ppu.setLyc(value);
+        } else if (address == 0xFF46) {
+            System.out.printf("OAM DMA solicitado: %02X%n", value);
+            int source = value << 8;
+            for(int i = 0; i < 160; i++) {
+                oam[i] = readByte(source + i);
+            }
         } else if (address == 0xFF47) {
             ppu.setBgp(value);
         } else if (address >= 0xFF80 && address <= 0xFFFE) {

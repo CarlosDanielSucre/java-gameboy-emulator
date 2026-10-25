@@ -2,6 +2,7 @@ package test.java.emulator.cpu;
 
 import cpu.Flags;
 import cpu.Registers;
+import input.Joypad;
 import memory.Cartridge;
 import memory.MMU;
 import cpu.CPU;
@@ -25,7 +26,7 @@ class CPUTest {
     @BeforeEach
     void setUp() {
         cartridge = new Cartridge(new byte[0x8000]);;
-        mmu = new MMU(cartridge);
+        mmu = new MMU(cartridge, new Joypad());
         cpu = new CPU(mmu);
         registers = cpu.getRegisters();
         flags = cpu.getFlags();
