@@ -80,6 +80,10 @@ public class MMU {
             // no implemented
         } else if (address == 0xFF47) {
             return ppu.getBgp();
+        }else if (address == 0xFF48) {
+            return ppu.getObp0();
+        } else if (address == 0xFF49) {
+            return ppu.getObp1();
         }else if(address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             return hram[address];
@@ -135,13 +139,16 @@ public class MMU {
         } else if (address == 0xFF45) {
             ppu.setLyc(value);
         } else if (address == 0xFF46) {
-            System.out.printf("OAM DMA solicitado: %02X%n", value);
             int source = value << 8;
             for(int i = 0; i < 160; i++) {
                 oam[i] = readByte(source + i);
             }
-        } else if (address == 0xFF47) {
+        }  else if (address == 0xFF47) {
             ppu.setBgp(value);
+        }else if (address == 0xFF48) {
+            ppu.setObp0(value);
+        } else if (address == 0xFF49) {
+            ppu.setObp1(value);
         } else if (address >= 0xFF80 && address <= 0xFFFE) {
             address -= 0xFF80;
             hram[address] = value;

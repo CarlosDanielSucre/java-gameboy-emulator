@@ -17,6 +17,22 @@ public class PPU {
     private int obp0 = 0xFF;
     private int obp1 = 0xFF;
 
+    public int getObp0() {
+        return obp0;
+    }
+
+    public void setObp0(int obp0) {
+        this.obp0 = obp0;
+    }
+
+    public int getObp1() {
+        return obp1;
+    }
+
+    public void setObp1(int obp1) {
+        this.obp1 = obp1;
+    }
+
     public PPU(int[] vram, int[] oam) {
         this.vram = vram;
         this.oam = oam;
@@ -26,7 +42,25 @@ public class PPU {
         return framebuffer;
     }
     public void renderSpritesLine() {
-
+        int spriteHeight = isBitSet(lcdc, 2) ? 16 : 8;
+        int spritesOnLine = 0;
+        for (int i = 0; i < 160; i += 4) {
+            int spriteY = oam[i] - 16;
+            int spriteX = oam[i + 1] - 8;
+            int tileIndex = oam[i + 2];
+            if (spriteHeight == 16) {
+                tileIndex &= 0xFE;
+            }
+            int attributes = oam[i + 3];
+            if (ly < spriteY || ly >= spriteY + spriteHeight) {
+                continue;
+            }
+            int lineInSprite = ly - spriteY;
+            int tileAddress = tileIndex * 16;
+            int lineAddress = tileAddress + lineInSprite * 2;
+            int low = vram[lineAddress];
+            int high = vram[lineAddress + 1];
+        }
     }
 
     public void renderScanline() {
@@ -35,6 +69,7 @@ public class PPU {
             for (int x = 0; x < 160; x++) {
                 framebuffer[ly * 160 + x] = SHADES[0];
             }
+            renderSpritesLine();
             return;
         }
 
@@ -68,6 +103,9 @@ public class PPU {
             int color = (bitHigh << 1) | bitLow;
             int shade = (bgp >> (color * 2)) & 0x3;
             framebuffer[ly * 160 + x] = SHADES[shade];
+        }
+        if (isBitSet(lcdc, 1)) {
+            renderSpritesLine();
         }
     }
     private boolean isBitSet(int value, int bit) {
@@ -160,4 +198,5 @@ public class PPU {
     public void setBgp(int value) {
         bgp = value & 0xFF;
     }
+
 }
