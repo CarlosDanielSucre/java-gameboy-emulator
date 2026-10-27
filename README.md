@@ -12,7 +12,7 @@ The goal of this project was to understand low-level systems, CPU emulation, mem
 
 **Title Screen**
 
-![Tetris Title Screen](docs/images/title.png)
+![Tetris Title Screen](docs/images/title.gif)
 
 ## Features
 
