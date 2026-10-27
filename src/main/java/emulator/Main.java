@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         JFrame window = new JFrame("GameBoy");
         try {
-            byte[] romData = Files.readAllBytes(Path.of("roms/test/tetris.gb"));
+            byte[] romData = Files.readAllBytes(Path.of("roms/test/Akumanor.gb"));
 
             Cartridge cartridge = new Cartridge(romData);
             Joypad joypad = new Joypad();

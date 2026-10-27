@@ -55,11 +55,33 @@ public class PPU {
             if (ly < spriteY || ly >= spriteY + spriteHeight) {
                 continue;
             }
+            if(spritesOnLine >= 10) {
+                continue;
+            }
+            spritesOnLine++;
             int lineInSprite = ly - spriteY;
             int tileAddress = tileIndex * 16;
             int lineAddress = tileAddress + lineInSprite * 2;
             int low = vram[lineAddress];
             int high = vram[lineAddress + 1];
+            for(int pixelX = 0; pixelX < 8; pixelX++){
+                int bit = 7 - pixelX;
+                int bitLow = (low >> bit) & 1;
+                int bitHigh = (high >> bit) & 1;
+                int color = (bitHigh << 1) | bitLow;
+                if (color == 0) {
+                    continue;
+                }
+                int screenX = spriteX + pixelX;
+                if (screenX < 0 || screenX > 159) {
+                    continue;
+                }
+                int palette = isBitSet(attributes, 4) ? obp1 : obp0;
+                int shade = (palette >> (color * 2)) & 0x03;
+                int position = ly * 160 + screenX;
+                framebuffer[position] = SHADES[shade];
+
+            }
         }
     }
 
@@ -102,7 +124,8 @@ public class PPU {
             int bitHigh = (high >> bit) & 1;
             int color = (bitHigh << 1) | bitLow;
             int shade = (bgp >> (color * 2)) & 0x3;
-            framebuffer[ly * 160 + x] = SHADES[shade];
+            int position = ly * 160 + x;
+            framebuffer[position] = SHADES[shade];
         }
         if (isBitSet(lcdc, 1)) {
             renderSpritesLine();
